@@ -52,6 +52,16 @@ class TransfermarktCompetitionSearch(TransfermarktBase):
         # Pad empty lists with None to ensure zip works correctly
         # This handles cases where some fields (like country) may be empty for certain competitions
         def pad_list(lst, length):
+            """
+            Pad a list to a specified length with None values.
+
+            Args:
+                lst: The list to pad.
+                length: The target length for the list.
+
+            Returns:
+                The original list if it's already the target length, otherwise a padded list.
+            """
             return lst if len(lst) == length else lst + [None] * (length - len(lst))
 
         country = pad_list(country, base_length)
