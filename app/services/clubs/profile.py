@@ -78,17 +78,20 @@ class TransfermarktClubProfile(TransfermarktBase):
         league_name = self.get_text_by_xpath(Clubs.Profile.LEAGUE_NAME)
 
         is_national_team = (
-            legal_form is None and
-            stadium_name is None and
-            (
-                league_id in ["FIWC", "FIWCQ", "FIFA"] or
-                (league_name and (
-                    "World Cup" in league_name or
-                    "European Championship" in league_name or
-                    "Copa América" in league_name or
-                    "African Cup" in league_name or
-                    "Asian Cup" in league_name
-                ))
+            legal_form is None
+            and stadium_name is None
+            and (
+                league_id in ["FIWC", "FIWCQ", "FIFA"]
+                or (
+                    league_name
+                    and (
+                        "World Cup" in league_name
+                        or "European Championship" in league_name
+                        or "Copa América" in league_name
+                        or "African Cup" in league_name
+                        or "Asian Cup" in league_name
+                    )
+                )
             )
         )
         self.response["isNationalTeam"] = is_national_team
