@@ -151,10 +151,17 @@ class Clubs:
         CLUB_URL = "//li[@id='overview']//@href"
         PAGE_NATIONALITIES = "//td[img[@class='flaggenrahmen']]"
         PAGE_INFOS = "//td[@class='posrela']"
-        NAMES = "//td[@class='posrela']//a//text()"
+        NAMES = (
+            "//td[@class='posrela']//a//text() | "
+            "//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]//text()"
+        )
         URLS = "//td[@class='hauptlink']//@href"
-        POSITIONS = "//td[@class='posrela']//tr[2]//text()"
-        DOB_AGE = "//div[@id='yw1']//td[3]//text()"
+        POSITIONS = (
+            "//td[@class='posrela']//tr[2]//text() | "
+            "//div[@id='yw1']//tbody//tr[.//td[@class='hauptlink']"
+            "//a[contains(@href, '/profil/spieler')]]//td[4]//text()"
+        )
+        DOB_AGE = "//div[@id='yw1']//td[3]//text() | //div[@id='yw1']//td[5]//text()"
         NATIONALITIES = ".//img//@title"
         JOINED = ".//span/node()/@title"
         SIGNED_FROM = ".//a//img//@title"
@@ -175,6 +182,13 @@ class Clubs:
             CURRENT_CLUB = "//div[@id='yw1']//td[5]//img//@title"
             HEIGHTS = "//div[@id='yw1']//td[6]/text()"
             FOOTS = "//div[@id='yw1']//td[7]//text()"
+
+    class Competitions:
+        RECORD_HEADING = "//h2[contains(text(), 'Record')]"
+        RECORD_TABLE = "//h2[contains(text(), 'Record')]/following::table[1]"
+        COMPETITION_LINKS = ".//a[contains(@href, '/wettbewerb/') or contains(@href, '/pokalwettbewerb/')]"
+        COMPETITION_NAME = ".//a[contains(@href, '/wettbewerb/') or contains(@href, '/pokalwettbewerb/')]//text()"
+        COMPETITION_URL = ".//a[contains(@href, '/wettbewerb/') or contains(@href, '/pokalwettbewerb/')]//@href"
 
 
 class Competitions:
