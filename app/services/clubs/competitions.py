@@ -64,7 +64,7 @@ class TransfermarktClubCompetitions(TransfermarktBase):
                             "id": comp_id,
                             "name": comp_name,
                             "url": href,
-                        }
+                        },
                     )
 
         return competitions
@@ -82,4 +82,3 @@ class TransfermarktClubCompetitions(TransfermarktBase):
         self.response["competitions"] = self.__parse_club_competitions()
 
         return self.response
-

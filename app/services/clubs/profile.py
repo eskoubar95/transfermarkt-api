@@ -70,13 +70,13 @@ class TransfermarktClubProfile(TransfermarktBase):
         )
         self.response["confederation"] = self.get_text_by_xpath(Clubs.Profile.CONFEDERATION)
         self.response["fifaWorldRanking"] = remove_str(self.get_text_by_xpath(Clubs.Profile.RANKING), "Pos")
-        
+
         # Detect if this is a national team
         legal_form = self.response.get("legalForm")
         stadium_name = self.response.get("stadiumName")
         league_id = extract_from_url(self.get_text_by_xpath(Clubs.Profile.LEAGUE_ID))
         league_name = self.get_text_by_xpath(Clubs.Profile.LEAGUE_NAME)
-        
+
         is_national_team = (
             legal_form is None and
             stadium_name is None and
@@ -92,7 +92,7 @@ class TransfermarktClubProfile(TransfermarktBase):
             )
         )
         self.response["isNationalTeam"] = is_national_team
-        
+
         self.response["squad"] = {
             "size": self.get_text_by_xpath(Clubs.Profile.SQUAD_SIZE),
             "averageAge": self.get_text_by_xpath(Clubs.Profile.SQUAD_AVG_AGE),

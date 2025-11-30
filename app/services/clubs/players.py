@@ -56,28 +56,28 @@ class TransfermarktClubPlayers(TransfermarktBase):
         players_ids = [extract_from_url(url) for url in self.get_list_by_xpath(Clubs.Players.URLS)]
         players_names = self.get_list_by_xpath(Clubs.Players.NAMES)
         players_positions = self.get_list_by_xpath(Clubs.Players.POSITIONS)
-        
+
         # Detect if this is a national team (no posrela structure)
         is_national_team = len(self.page.xpath(Clubs.Players.PAGE_INFOS)) == 0 and len(players_names) > 0
-        
+
         # Handle national teams: extract data from rows directly
         if is_national_team:
             # Get all player rows (may contain duplicates for home/away)
             all_player_rows = self.page.xpath(
-                "//div[@id='yw1']//tbody//tr[.//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]]"
+                "//div[@id='yw1']//tbody//tr[.//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]]",
             )
-            
+
             # Extract data from rows, matching with player URLs to avoid duplicates
             players_positions = []
             players_dobs_raw = []
             seen_urls = set()
-            
+
             for url in self.get_list_by_xpath(Clubs.Players.URLS):
                 # Skip if we've already processed this URL
                 if url in seen_urls:
                     continue
                 seen_urls.add(url)
-                
+
                 # Find first row containing this player URL
                 for row in all_player_rows:
                     row_urls = row.xpath(".//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]/@href")
@@ -89,7 +89,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
                             players_positions.append(pos_text if pos_text else None)
                         else:
                             players_positions.append(None)
-                        
+
                         # DOB/Age is in TD[5] for national teams
                         if len(tds) > 5:
                             dob_text = "".join(tds[5].xpath(".//text()")).strip()
@@ -101,7 +101,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
                     # URL not found in any row
                     players_positions.append(None)
                     players_dobs_raw.append(None)
-            
+
             players_dobs = [safe_regex(dob_age, REGEX_DOB, "dob") for dob_age in players_dobs_raw]
             players_ages = [safe_regex(dob_age, REGEX_DOB, "age") for dob_age in players_dobs_raw]
         else:
@@ -114,52 +114,52 @@ class TransfermarktClubPlayers(TransfermarktBase):
             ]
         # Ensure all lists have the same length as players_ids
         base_length = len(players_ids)
-        
+
         players_nationalities = [nationality.xpath(Clubs.Players.NATIONALITIES) for nationality in page_nationalities]
         if len(players_nationalities) != base_length:
             players_nationalities = (players_nationalities + [[]] * base_length)[:base_length]
-        
+
         players_current_club = (
             self.get_list_by_xpath(Clubs.Players.Past.CURRENT_CLUB) if self.past else [None] * base_length
         )
         if len(players_current_club) != base_length:
             players_current_club = (players_current_club + [None] * base_length)[:base_length]
-        
+
         players_heights = self.get_list_by_xpath(
             Clubs.Players.Past.HEIGHTS if self.past else Clubs.Players.Present.HEIGHTS,
         )
         if len(players_heights) != base_length:
             players_heights = (players_heights + [None] * base_length)[:base_length]
-        
+
         players_foots = self.get_list_by_xpath(
             Clubs.Players.Past.FOOTS if self.past else Clubs.Players.Present.FOOTS,
             remove_empty=False,
         )
         if len(players_foots) != base_length:
             players_foots = (players_foots + [None] * base_length)[:base_length]
-        
+
         players_joined_on = ["; ".join(e.xpath(Clubs.Players.JOINED_ON)) for e in page_players_joined_on]
         if len(players_joined_on) != base_length:
             players_joined_on = (players_joined_on + [None] * base_length)[:base_length]
-        
+
         players_joined = ["; ".join(e.xpath(Clubs.Players.JOINED)) for e in page_players_infos]
         if len(players_joined) != base_length:
             players_joined = (players_joined + [None] * base_length)[:base_length]
-        
+
         players_signed_from = ["; ".join(e.xpath(Clubs.Players.SIGNED_FROM)) for e in page_players_signed_from]
         if len(players_signed_from) != base_length:
             players_signed_from = (players_signed_from + [None] * base_length)[:base_length]
-        
+
         players_contracts = (
             [None] * base_length if self.past else self.get_list_by_xpath(Clubs.Players.Present.CONTRACTS)
         )
         if len(players_contracts) != base_length:
             players_contracts = (players_contracts + [None] * base_length)[:base_length]
-        
+
         players_marketvalues = self.get_list_by_xpath(Clubs.Players.MARKET_VALUES)
         if len(players_marketvalues) != base_length:
             players_marketvalues = (players_marketvalues + [None] * base_length)[:base_length]
-        
+
         players_statuses = ["; ".join(e.xpath(Clubs.Players.STATUSES)) for e in page_players_infos if e is not None]
         if len(players_statuses) != base_length:
             players_statuses = (players_statuses + [""] * base_length)[:base_length]

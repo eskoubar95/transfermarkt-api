@@ -13,4 +13,3 @@ class ClubCompetitions(TransfermarktBaseModel, AuditMixin):
     id: str
     season_id: str
     competitions: list[ClubCompetition]
-
