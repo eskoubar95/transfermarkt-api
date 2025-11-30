@@ -48,7 +48,7 @@ class TransfermarktCompetitionSearch(TransfermarktBase):
 
         # Determine the base length from URLs (most reliable field)
         base_length = len(urls)
-        
+
         # Pad empty lists with None to ensure zip works correctly
         # This handles cases where some fields (like country) may be empty for certain competitions
         def pad_list(lst, length):
