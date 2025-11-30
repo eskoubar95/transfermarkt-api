@@ -36,7 +36,8 @@ class TransfermarktCompetitionSearch(TransfermarktBase):
                 including its unique identifier, name, country, associated clubs, number of players,
                 total market value, mean market value, and continent.
         """
-        idx = [extract_from_url(url) for url in self.get_list_by_xpath(Competitions.Search.URLS)]
+        urls = self.get_list_by_xpath(Competitions.Search.URLS)
+        idx = [extract_from_url(url) for url in urls]
         name = self.get_list_by_xpath(Competitions.Search.NAMES)
         country = self.get_list_by_xpath(Competitions.Search.COUNTRIES)
         clubs = self.get_list_by_xpath(Competitions.Search.CLUBS)
@@ -44,6 +45,21 @@ class TransfermarktCompetitionSearch(TransfermarktBase):
         total_market_value = self.get_list_by_xpath(Competitions.Search.TOTAL_MARKET_VALUES)
         mean_market_value = self.get_list_by_xpath(Competitions.Search.MEAN_MARKET_VALUES)
         continent = self.get_list_by_xpath(Competitions.Search.CONTINENTS)
+
+        # Determine the base length from URLs (most reliable field)
+        base_length = len(urls)
+        
+        # Pad empty lists with None to ensure zip works correctly
+        # This handles cases where some fields (like country) may be empty for certain competitions
+        def pad_list(lst, length):
+            return lst if len(lst) == length else lst + [None] * (length - len(lst))
+
+        country = pad_list(country, base_length)
+        clubs = pad_list(clubs, base_length)
+        players = pad_list(players, base_length)
+        total_market_value = pad_list(total_market_value, base_length)
+        mean_market_value = pad_list(mean_market_value, base_length)
+        continent = pad_list(continent, base_length)
 
         return [
             {
