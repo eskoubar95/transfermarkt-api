@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from app.services.base import TransfermarktBase
 from app.utils.regex import REGEX_DOB
@@ -14,11 +15,14 @@ class TransfermarktClubPlayers(TransfermarktBase):
     Args:
         club_id (str): The unique identifier of the football club.
         season_id (str): The unique identifier of the season.
+        is_national_team (Optional[bool]): Explicit flag indicating if this is a national team.
+                                          If None, will be detected automatically from DOM structure.
         URL (str): The URL template for the club's players page on Transfermarkt.
     """
 
     club_id: str = None
     season_id: str = None
+    is_national_team: Optional[bool] = None
     URL: str = "https://www.transfermarkt.com/-/kader/verein/{club_id}/saison_id/{season_id}/plus/1"
 
     def __post_init__(self) -> None:
@@ -42,6 +46,8 @@ class TransfermarktClubPlayers(TransfermarktBase):
         """
         Parse player information from the webpage and return a list of dictionaries, each representing a player.
 
+        Uses explicit is_national_team flag if provided, otherwise falls back to DOM-based heuristic detection.
+
         Returns:
             list[dict]: A list of player information dictionaries.
         """
@@ -53,12 +59,18 @@ class TransfermarktClubPlayers(TransfermarktBase):
         page_players_joined_on = self.page.xpath(
             Clubs.Players.Past.PAGE_JOINED_ON if self.past else Clubs.Players.Present.PAGE_JOINED_ON,
         )
-        players_ids = [extract_from_url(url) for url in self.get_list_by_xpath(Clubs.Players.URLS)]
+        # Store the canonical URL list to ensure consistency across all derived lists
+        players_urls = self.get_list_by_xpath(Clubs.Players.URLS)
+        players_ids = [extract_from_url(url) for url in players_urls]
         players_names = self.get_list_by_xpath(Clubs.Players.NAMES)
         players_positions = self.get_list_by_xpath(Clubs.Players.POSITIONS)
 
-        # Detect if this is a national team (no posrela structure)
-        is_national_team = len(self.page.xpath(Clubs.Players.PAGE_INFOS)) == 0 and len(players_names) > 0
+        # Use explicit flag if provided, otherwise detect from DOM structure
+        if self.is_national_team is not None:
+            is_national_team = self.is_national_team
+        else:
+            # Fallback to DOM-based heuristic detection (no posrela structure)
+            is_national_team = len(self.page.xpath(Clubs.Players.PAGE_INFOS)) == 0 and len(players_names) > 0
 
         # Handle national teams: extract data from rows directly
         if is_national_team:
@@ -67,18 +79,14 @@ class TransfermarktClubPlayers(TransfermarktBase):
                 "//div[@id='yw1']//tbody//tr[.//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]]",
             )
 
-            # Extract data from rows, matching with player URLs to avoid duplicates
+            # Extract data from rows, matching with player URLs in the same order as players_ids
             players_positions = []
             players_dobs_raw = []
-            seen_urls = set()
 
-            for url in self.get_list_by_xpath(Clubs.Players.URLS):
-                # Skip if we've already processed this URL
-                if url in seen_urls:
-                    continue
-                seen_urls.add(url)
-
+            # Iterate over the same URL list used to create players_ids to maintain order and count
+            for url in players_urls:
                 # Find first row containing this player URL
+                found = False
                 for row in all_player_rows:
                     row_urls = row.xpath(".//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]/@href")
                     if url in row_urls:
@@ -96,9 +104,11 @@ class TransfermarktClubPlayers(TransfermarktBase):
                             players_dobs_raw.append(dob_text if dob_text else None)
                         else:
                             players_dobs_raw.append(None)
+                        found = True
                         break
-                else:
-                    # URL not found in any row
+
+                # URL not found in any row - append None to maintain alignment with players_ids
+                if not found:
                     players_positions.append(None)
                     players_dobs_raw.append(None)
 
@@ -115,6 +125,8 @@ class TransfermarktClubPlayers(TransfermarktBase):
         # Ensure all lists have the same length as players_ids
         base_length = len(players_ids)
 
+        if len(players_names) != base_length:
+            players_names = (players_names + [""] * base_length)[:base_length]
         players_nationalities = [nationality.xpath(Clubs.Players.NATIONALITIES) for nationality in page_nationalities]
         if len(players_nationalities) != base_length:
             players_nationalities = (players_nationalities + [[]] * base_length)[:base_length]
@@ -162,7 +174,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
 
         players_statuses = ["; ".join(e.xpath(Clubs.Players.STATUSES)) for e in page_players_infos if e is not None]
         if len(players_statuses) != base_length:
-            players_statuses = (players_statuses + [""] * base_length)[:base_length]
+            players_statuses = (players_statuses + [None] * base_length)[:base_length]
 
         return [
             {

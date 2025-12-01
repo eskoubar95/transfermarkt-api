@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from datetime import datetime
+
+from fastapi import HTTPException
 
 from app.services.base import TransfermarktBase
 from app.utils.utils import extract_from_url
@@ -24,16 +27,12 @@ class TransfermarktClubCompetitions(TransfermarktBase):
         """Initialize the TransfermarktClubCompetitions class."""
         if self.season_id is None:
             # Default to current season
-            from datetime import datetime
-
             self.season_id = str(datetime.now().year)
         self.URL = self.URL.format(club_id=self.club_id, season_id=self.season_id)
         self.page = self.request_url_page()
         # Check if Record table exists instead of heading
         record_table = self.page.xpath(Clubs.Competitions.RECORD_TABLE)
         if not record_table:
-            from fastapi import HTTPException
-
             raise HTTPException(status_code=404, detail=f"Invalid request (url: {self.URL})")
 
     def __parse_club_competitions(self) -> list[dict]:

@@ -194,7 +194,29 @@ class Clubs:
 class Competitions:
     class Profile:
         URL = "//a[@class='tm-tab']//@href"
-        NAME = "//div[@class='data-header__headline-container']//h1//text()"
+        NAME = (
+            "//div[@class='data-header__headline-container']//h1//text() | "
+            "//h1[contains(@class, 'content-box-headline')]//text() | "
+            "//div[contains(@class, 'data-header')]//h1//text() | "
+            "//h1[not(contains(text(), 'Participating teams'))]//text()"
+        )
+        SEASON_DROPDOWN = (
+            "//table[contains(., 'Filter by season:')]"
+            "//td[contains(., 'Filter by season:')]/following-sibling::td[1] | "
+            "//table//td[contains(text(), 'Filter by season:')]/following-sibling::td[1]"
+        )
+        SEASON_OPTIONS = (
+            ".//li[contains(@class, 'list-item')]//text() | "
+            ".//li//text() | "
+            ".//ul//li//text() | "
+            ".//list//listitem//text() | "
+            ".//text()[normalize-space()]"
+        )
+        SEASON_SELECTED = ".//a[contains(@href, 'javascript:void(0)')]//text()"
+        SEASON_TABLE_CELL = (
+            "//table[contains(., 'Filter by season:')]"
+            "//td[contains(., 'Filter by season:')]/following-sibling::td[1]//text()"
+        )
 
     class Search:
         BASE = "//div[@class='box'][h2[contains(text(), 'competitions')]]"
@@ -208,8 +230,41 @@ class Competitions:
         CONTINENTS = BASE + "//td[@class='zentriert'][5]//text()"
 
     class Clubs:
-        URLS = "//td[@class='hauptlink no-border-links']//a[1]//@href"
-        NAMES = "//td[@class='hauptlink no-border-links']//a//text()"
+        # Match both regular clubs and national teams
+        # Regular clubs: td[@class='hauptlink no-border-links']
+        # National teams may have different class or structure, so we use a more general approach
+        # Match any td with hauptlink class that contains links to clubs or national teams
+        # Use union to match both the original pattern and national teams
+        URLS = (
+            "//td[@class='hauptlink no-border-links']//a[1]//@href | "
+            "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/')]//@href"
+        )
+        NAMES = (
+            "//td[@class='hauptlink no-border-links']//a//text() | "
+            "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/')]//text()"
+        )
+        # XPath for participants table on /teilnehmer/ pages (national team competitions)
+        # Only get teams from the first table (actual participants), not from "not qualified" tables
+        # The participants table comes after h2 with "Clubs starting into tournament at a later point"
+        # Filter to only get rows that have team links (exclude header row)
+        PARTICIPANTS_URLS = (
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[@class='hauptlink no-border-links']//a[1]//@href | "
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[contains(@class, 'hauptlink')]//a["
+            "contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//@href"
+        )
+        PARTICIPANTS_NAMES = (
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[@class='hauptlink no-border-links']//a//text() | "
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[contains(@class, 'hauptlink')]//a["
+            "contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//text()"
+        )
 
 
 class Pagination:
