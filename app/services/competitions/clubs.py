@@ -1,9 +1,12 @@
+import logging
 from dataclasses import dataclass
 from typing import Optional
 
 from app.services.base import TransfermarktBase
 from app.utils.utils import extract_from_url, trim
 from app.utils.xpath import Competitions
+
+logger = logging.getLogger(__name__)
 
 # Mapping of national team competition IDs to their URL slugs
 NATIONAL_TEAM_COMPETITIONS = {
@@ -121,6 +124,16 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
 
         ids = [extract_from_url(url) for url in urls]
 
+        # Validate that ids and names have the same length to prevent silent data loss
+        if len(ids) != len(names):
+            error_msg = (
+                f"Data mismatch: found {len(ids)} IDs but {len(names)} names "
+                f"for competition {self.competition_id} (URL: {self.URL}). "
+                f"This indicates a parsing error that could cause data loss or misalignment."
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
         return [{"id": idx, "name": name} for idx, name in zip(ids, names)]
 
     def __get_competition_name(self) -> str:
@@ -167,14 +180,12 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
                 "season_id",
             )
             if url_season_id and url_season_id.isdigit():
-                try:
-                    # Convert back to tournament year (add 1)
-                    tournament_year = str(int(url_season_id) + 1)
-                    self.response["seasonId"] = tournament_year
-                except ValueError:
-                    # Fallback to original season_id if conversion fails
-                    if url_season_id:
-                        self.response["seasonId"] = url_season_id
+                # Convert back to tournament year (add 1)
+                # isdigit() check prevents ValueError, so no try/except needed
+                self.response["seasonId"] = str(int(url_season_id) + 1)
+            elif url_season_id:
+                # Use extracted season_id if it exists but is not a digit
+                self.response["seasonId"] = url_season_id
             elif self.season_id:
                 # Use provided season_id if URL extraction fails
                 self.response["seasonId"] = self.season_id
