@@ -165,3 +165,4 @@ cython_debug/
 
 # OpenMemory - IDE/Assistant specific rules
 .cursor/rules/openmemory.mdc
+.DS_Store
