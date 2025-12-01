@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from app.services.base import TransfermarktBase
+from app.settings import settings
 from app.utils.utils import extract_from_url, trim
 from app.utils.xpath import Competitions
 
@@ -102,21 +103,23 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
             names = self.get_list_by_xpath(Competitions.Clubs.PARTICIPANTS_NAMES)
             
             # Some tournament pages may include extra teams from "not qualified" section
-            # Limit based on expected tournament size to avoid including non-participants
-            expected_sizes = {
-                "FIWC": 32,  # World Cup has 32 participants
-                "EURO": 24,  # EURO has 24 participants
-                "COPA": 12,  # Copa America typically has 12 participants
-                "AFAC": 24,  # Asian Cup has 24 participants
-                "GOCU": 16,  # Gold Cup has 16 participants
-                "AFCN": 24,  # Africa Cup has 24 participants
-            }
+            # Limit based on expected tournament size from configuration to avoid including non-participants
+            # Tournament sizes can be configured via environment variables (e.g., TOURNAMENT_SIZE_FIWC=48)
+            # See app/settings.py for available configuration options
+            expected_size = settings.get_tournament_size(self.competition_id)
             
-            expected_size = expected_sizes.get(self.competition_id)
             if expected_size and len(urls) > expected_size:
                 # Limit to expected size to exclude any extra teams from "not qualified" section
                 urls = urls[:expected_size]
                 names = names[:expected_size]
+            elif expected_size is None:
+                # Log warning if tournament size is not configured
+                logger.warning(
+                    f"Expected tournament size not configured for competition {self.competition_id}. "
+                    f"Found {len(urls)} participants. "
+                    f"To configure, set TOURNAMENT_SIZE_{self.competition_id} environment variable. "
+                    f"Proceeding without truncation - all participants will be included."
+                )
         else:
             # Use normal XPath for regular leagues
             urls = self.get_list_by_xpath(Competitions.Clubs.URLS)
