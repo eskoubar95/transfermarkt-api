@@ -64,6 +64,7 @@ class TransfermarktCompetitionSearch(TransfermarktBase):
             """
             return lst if len(lst) == length else lst + [None] * (length - len(lst))
 
+        name = pad_list(name, base_length)
         country = pad_list(country, base_length)
         clubs = pad_list(clubs, base_length)
         players = pad_list(players, base_length)
