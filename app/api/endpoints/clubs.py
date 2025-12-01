@@ -27,7 +27,9 @@ def get_club_profile(club_id: str) -> dict:
 
 @router.get("/{club_id}/players", response_model=schemas.ClubPlayers, response_model_exclude_defaults=True)
 def get_club_players(club_id: str, season_id: Optional[str] = None) -> dict:
-    tfmkt = TransfermarktClubPlayers(club_id=club_id, season_id=season_id)
+    # Let TransfermarktClubPlayers use its DOM heuristics to detect national teams
+    # This avoids an extra HTTP request and relies on the players page structure
+    tfmkt = TransfermarktClubPlayers(club_id=club_id, season_id=season_id, is_national_team=None)
     club_players = tfmkt.get_club_players()
     return club_players
 
