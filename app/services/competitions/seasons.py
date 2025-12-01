@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from app.services.base import TransfermarktBase
 from app.utils.utils import trim
@@ -15,8 +16,8 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
         URL (str): The URL template for the competition's page on Transfermarkt.
     """
 
-    competition_id: str = None
-    URL: str = "https://www.transfermarkt.com/-/startseite/wettbewerb/{competition_id}/plus/"
+    competition_id: Optional[str] = None
+    URL: str = "https://www.transfermarkt.com/-/startseite/wettbewerb/{competition_id}"
 
     def __post_init__(self) -> None:
         """Initialize the TransfermarktCompetitionSeasons class."""
@@ -94,8 +95,12 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
                 return (start_year, end_year)
         else:
             # Single-year format: "2025" -> start_year: 2025, end_year: 2025
-            year = int(season_name)
-            return (year, year)
+            try:
+                year = int(season_name)
+                return (year, year)
+            except ValueError:
+                # Handle malformed input (non-numeric season_name)
+                return (None, None)
 
         # Fallback: return None values if parsing fails
         return (None, None)
@@ -250,11 +255,9 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
                 continue
 
             # Only process items that look like seasons (contain "/" or are 4-digit years)
-            # Also allow 2-digit numbers that might be part of cross-year format
             is_season = (
                 "/" in season_name or  # Cross-year format like "25/26"
-                (season_name.isdigit() and len(season_name) == 4) or  # Single year like "2025"
-                (season_name.isdigit() and len(season_name) == 2)  # Part of cross-year like "25"
+                (season_name.isdigit() and len(season_name) == 4)  # Single year like "2025"
             )
 
             if not is_season:

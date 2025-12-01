@@ -194,7 +194,12 @@ class Clubs:
 class Competitions:
     class Profile:
         URL = "//a[@class='tm-tab']//@href"
-        NAME = "//div[@class='data-header__headline-container']//h1//text()"
+        NAME = (
+            "//div[@class='data-header__headline-container']//h1//text() | "
+            "//h1[contains(@class, 'content-box-headline')]//text() | "
+            "//div[contains(@class, 'data-header')]//h1//text() | "
+            "//h1[not(contains(text(), 'Participating teams'))]//text()"
+        )
         SEASON_DROPDOWN = (
             "//table[contains(., 'Filter by season:')]"
             "//td[contains(., 'Filter by season:')]/following-sibling::td[1] | "
@@ -237,6 +242,26 @@ class Competitions:
         NAMES = (
             "//td[@class='hauptlink no-border-links']//a//text() | "
             "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/')]//text()"
+        )
+        # XPath for participants table on /teilnehmer/ pages (national team competitions)
+        # Only get teams from the first table (actual participants), not from "not qualified" tables
+        # The participants table comes after h2 with "Clubs starting into tournament at a later point"
+        # Filter to only get rows that have team links (exclude header row)
+        PARTICIPANTS_URLS = (
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[@class='hauptlink no-border-links']//a[1]//@href | "
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//@href"
+        )
+        PARTICIPANTS_NAMES = (
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[@class='hauptlink no-border-links']//a//text() | "
+            "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
+            "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
+            "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//text()"
         )
 
 

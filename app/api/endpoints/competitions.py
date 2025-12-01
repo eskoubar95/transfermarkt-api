@@ -17,7 +17,7 @@ def search_competitions(competition_name: str, page_number: Optional[int] = 1):
     return competitions
 
 
-@router.get("/{competition_id}/clubs", response_model=schemas.CompetitionClubs)
+@router.get("/{competition_id}/clubs", response_model=schemas.CompetitionClubs, response_model_exclude_none=True)
 def get_competition_clubs(competition_id: str, season_id: Optional[str] = None):
     tfmkt = TransfermarktCompetitionClubs(competition_id=competition_id, season_id=season_id)
     competition_clubs = tfmkt.get_competition_clubs()
