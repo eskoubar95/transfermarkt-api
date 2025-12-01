@@ -115,6 +115,9 @@ class TransfermarktClubPlayers(TransfermarktBase):
         # Ensure all lists have the same length as players_ids
         base_length = len(players_ids)
 
+        if len(players_names) != base_length:
+            players_names = (players_names + [""] * base_length)[:base_length]
+
         players_nationalities = [nationality.xpath(Clubs.Players.NATIONALITIES) for nationality in page_nationalities]
         if len(players_nationalities) != base_length:
             players_nationalities = (players_nationalities + [[]] * base_length)[:base_length]
@@ -162,7 +165,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
 
         players_statuses = ["; ".join(e.xpath(Clubs.Players.STATUSES)) for e in page_players_infos if e is not None]
         if len(players_statuses) != base_length:
-            players_statuses = (players_statuses + [""] * base_length)[:base_length]
+            players_statuses = (players_statuses + [None] * base_length)[:base_length]
 
         return [
             {
