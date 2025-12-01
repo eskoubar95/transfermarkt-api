@@ -127,7 +127,6 @@ class TransfermarktClubPlayers(TransfermarktBase):
 
         if len(players_names) != base_length:
             players_names = (players_names + [""] * base_length)[:base_length]
-
         players_nationalities = [nationality.xpath(Clubs.Players.NATIONALITIES) for nationality in page_nationalities]
         if len(players_nationalities) != base_length:
             players_nationalities = (players_nationalities + [[]] * base_length)[:base_length]
