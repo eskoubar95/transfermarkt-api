@@ -193,10 +193,7 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
                 if not season_options:
                     # Try multiple list item patterns
                     season_options = dropdown.xpath(
-                        ".//li//text() | "
-                        ".//listitem//text() | "
-                        ".//ul//li//text() | "
-                        ".//list//listitem//text()",
+                        ".//li//text() | " ".//listitem//text() | " ".//ul//li//text() | " ".//list//listitem//text()",
                     )
                     season_options = [trim(s) for s in season_options if trim(s)]
 
@@ -206,9 +203,7 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
                     combined_text = " ".join([trim(s) for s in all_text if trim(s)])
                     # Split by whitespace to get individual seasons
                     season_options = [
-                        s.strip()
-                        for s in combined_text.split()
-                        if s.strip() and ("/" in s or s.strip().isdigit())
+                        s.strip() for s in combined_text.split() if s.strip() and ("/" in s or s.strip().isdigit())
                     ]
             else:
                 # Fallback: try to find seasons directly from the page
@@ -255,10 +250,9 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
                 continue
 
             # Only process items that look like seasons (contain "/" or are 4-digit years)
-            is_season = (
-                "/" in season_name or  # Cross-year format like "25/26"
-                (season_name.isdigit() and len(season_name) == 4)  # Single year like "2025"
-            )
+            is_season = "/" in season_name or (  # Cross-year format like "25/26"
+                season_name.isdigit() and len(season_name) == 4
+            )  # Single year like "2025"
 
             if not is_season:
                 continue
