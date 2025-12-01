@@ -253,7 +253,8 @@ class Competitions:
             "//td[@class='hauptlink no-border-links']//a[1]//@href | "
             "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
             "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
-            "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//@href"
+            "//td[contains(@class, 'hauptlink')]//a["
+            "contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//@href"
         )
         PARTICIPANTS_NAMES = (
             "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
@@ -261,7 +262,8 @@ class Competitions:
             "//td[@class='hauptlink no-border-links']//a//text() | "
             "//h2[contains(text(), 'Clubs starting into tournament')]/following::table[1]"
             "//tr[.//a[contains(@href, '/verein/') or contains(@href, '/nationalmannschaft/')]]"
-            "//td[contains(@class, 'hauptlink')]//a[contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//text()"
+            "//td[contains(@class, 'hauptlink')]//a["
+            "contains(@href, '/nationalmannschaft/') or contains(@href, '/verein/')]//text()"
         )
 
 

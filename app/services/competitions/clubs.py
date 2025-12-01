@@ -101,13 +101,13 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
             # Use participants table XPath for national team competitions
             urls = self.get_list_by_xpath(Competitions.Clubs.PARTICIPANTS_URLS)
             names = self.get_list_by_xpath(Competitions.Clubs.PARTICIPANTS_NAMES)
-            
+
             # Some tournament pages may include extra teams from "not qualified" section
             # Limit based on expected tournament size from configuration to avoid including non-participants
             # Tournament sizes can be configured via environment variables (e.g., TOURNAMENT_SIZE_FIWC=48)
             # See app/settings.py for available configuration options
             expected_size = settings.get_tournament_size(self.competition_id)
-            
+
             if expected_size and len(urls) > expected_size:
                 # Limit to expected size to exclude any extra teams from "not qualified" section
                 urls = urls[:expected_size]
@@ -118,7 +118,7 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
                     f"Expected tournament size not configured for competition {self.competition_id}. "
                     f"Found {len(urls)} participants. "
                     f"To configure, set TOURNAMENT_SIZE_{self.competition_id} environment variable. "
-                    f"Proceeding without truncation - all participants will be included."
+                    f"Proceeding without truncation - all participants will be included.",
                 )
         else:
             # Use normal XPath for regular leagues
@@ -147,7 +147,7 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
             str: The competition name.
         """
         name = self.get_text_by_xpath(Competitions.Profile.NAME)
-        
+
         # Clean up name for national team competitions
         if self.is_national_team and name:
             name = trim(name)
@@ -161,7 +161,7 @@ class TransfermarktCompetitionClubs(TransfermarktBase):
                 name = next((p for p in parts if "Participants" not in p and len(p) > 3), parts[0])
             # Remove any remaining "Participants" text
             name = name.replace("Participants", "").strip()
-        
+
         return name
 
     def get_competition_clubs(self) -> dict:

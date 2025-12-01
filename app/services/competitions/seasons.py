@@ -168,7 +168,7 @@ class TransfermarktCompetitionSeasons(TransfermarktBase):
             if not season_dropdown:
                 # Try finding table with season filter
                 season_dropdown = self.page.xpath(
-                    "//table//td[contains(text(), 'Filter by season:')]/following-sibling::td[1]"
+                    "//table//td[contains(text(), 'Filter by season:')]/following-sibling::td[1]",
                 )
 
             if not season_dropdown:

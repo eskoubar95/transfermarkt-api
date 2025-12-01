@@ -44,7 +44,7 @@ def test_tournament_size_configuration_used():
     # Test with World Cup - should use configured size (default 32)
     with patch("app.services.competitions.clubs.settings") as mock_settings:
         mock_settings.get_tournament_size.return_value = 32
-        
+
         service = TransfermarktCompetitionClubs(competition_id="FIWC", season_id="2006")
         # Verify settings method would be called during parsing
         # We can't easily test the actual call without more complex mocking,
@@ -57,9 +57,9 @@ def test_tournament_size_none_logs_warning(caplog):
     """Test that warning is logged when tournament size is not configured."""
     with patch("app.services.competitions.clubs.settings") as mock_settings:
         mock_settings.get_tournament_size.return_value = None
-        
+
         service = TransfermarktCompetitionClubs(competition_id="FIWC", season_id="2006")
-        
+
         with caplog.at_level(logging.WARNING):
             # Trigger parsing which should log warning if size is None
             try:
@@ -67,7 +67,7 @@ def test_tournament_size_none_logs_warning(caplog):
             except Exception:
                 # Ignore exceptions from actual scraping, we just want to test logging
                 pass
-        
+
         # Check that warning was logged
         assert "Expected tournament size not configured" in caplog.text
         assert "FIWC" in caplog.text
@@ -94,7 +94,7 @@ def test_tournament_size_configuration_override():
 def test_settings_get_tournament_size_all_competitions():
     """Test that get_tournament_size returns correct values for all competitions."""
     settings = Settings()
-    
+
     assert settings.get_tournament_size("FIWC") == 32
     assert settings.get_tournament_size("EURO") == 24
     assert settings.get_tournament_size("COPA") == 12
@@ -108,6 +108,6 @@ def test_settings_tournament_size_validation():
     """Test that tournament size validation rejects invalid values."""
     with pytest.raises(ValueError, match="Tournament size must be a positive integer"):
         Settings(TOURNAMENT_SIZE_FIWC=-1)
-    
+
     with pytest.raises(ValueError, match="Tournament size must be a positive integer"):
         Settings(TOURNAMENT_SIZE_FIWC=0)
