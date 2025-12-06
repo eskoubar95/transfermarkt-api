@@ -9,6 +9,27 @@ class Settings(BaseSettings):
     RATE_LIMITING_ENABLE: bool = False
     RATE_LIMITING_FREQUENCY: str = "2/3seconds"
 
+    # Anti-scraping configuration for Railway deployment
+    SESSION_TIMEOUT: int = Field(default=3600, description="Session timeout in seconds (default: 1 hour)")
+    MAX_SESSIONS: int = Field(default=50, description="Maximum concurrent sessions")
+    MAX_CONCURRENT_REQUESTS: int = Field(default=10, description="Maximum concurrent requests per session")
+
+    # Proxy configuration
+    PROXY_HOST: Optional[str] = Field(default=None, description="Proxy host for residential proxies")
+    PROXY_PORT: Optional[str] = Field(default=None, description="Proxy port")
+    PROXY_USERNAME: Optional[str] = Field(default=None, description="Proxy authentication username")
+    PROXY_PASSWORD: Optional[str] = Field(default=None, description="Proxy authentication password")
+
+    # Anti-detection settings
+    REQUEST_DELAY_MIN: float = Field(default=1.0, description="Minimum delay between requests (seconds)")
+    REQUEST_DELAY_MAX: float = Field(default=3.0, description="Maximum delay between requests (seconds)")
+    ENABLE_BEHAVIORAL_SIMULATION: bool = Field(default=False, description="Enable behavioral simulation (mouse movements, etc.)")
+
+    # Browser scraping configuration
+    ENABLE_BROWSER_SCRAPING: bool = Field(default=True, description="Enable browser scraping fallback")
+    BROWSER_TIMEOUT: int = Field(default=30000, description="Browser timeout in milliseconds")
+    BROWSER_HEADLESS: bool = Field(default=True, description="Run browser in headless mode")
+
     # National team competition expected tournament sizes
     # Can be overridden via environment variables:
     # TOURNAMENT_SIZE_FIWC=48, TOURNAMENT_SIZE_EURO=24, etc.

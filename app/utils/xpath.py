@@ -57,17 +57,24 @@ class Players:
         RELATIVE_NAME = ".//text()"
 
     class Search:
-        FOUND = "//text()"
-        BASE = "//div[@class='box'][h2[contains(text(), 'players')]]"
-        RESULTS = BASE + "//tbody//tr[@class='odd' or @class='even']"
-        ID = ".//td[@class='hauptlink']//a/@href"
-        NAME = ".//td[@class='hauptlink']//a//@title"
+        # Updated for new Transfermarkt HTML structure (2024)
+        BASE = "//div[@id='yw0']"  # Player search results table container
+        RESULTS = BASE + "//table[@class='items']//tbody//tr[@class='odd' or @class='even']"
+        # Player names: td > table.inline-table > tbody > tr > td.hauptlink > a @title
+        ID = ".//td//table[@class='inline-table']//td[@class='hauptlink']//a//@href"
+        NAME = ".//td//table[@class='inline-table']//td[@class='hauptlink']//a//@title"
+        # Position: td.zentriert (first zentriert column in this row)
         POSITION = ".//td[@class='zentriert'][1]//text()"
-        CLUB_NAME = ".//img[@class='tiny_wappen']//@title"
-        CLUB_IMAGE = ".//img[@class='tiny_wappen']//@src"
-        AGE = ".//td[@class='zentriert'][3]//text()"
-        NATIONALITIES = ".//img[@class='flaggenrahmen']/@title"
+        # Club name: td.zentriert > a > img.tiny_wappen @title (in this row)
+        CLUB_NAME = ".//td[@class='zentriert']//img[@class='tiny_wappen']//@title"
+        CLUB_IMAGE = ".//td[@class='zentriert']//img[@class='tiny_wappen']//@src"
+        # Age: td.zentriert (second zentriert column in this row)
+        AGE = ".//td[@class='zentriert'][2]//text()"
+        # Nationalities: td.zentriert > img.flaggenrahmen @title (relative to row, can be multiple)
+        NATIONALITIES = ".//td[@class='zentriert']//img[@class='flaggenrahmen']//@title"
+        # Market value: td.rechts.hauptlink (in this row)
         MARKET_VALUE = ".//td[@class='rechts hauptlink']//text()"
+        FOUND = BASE + "//text()"
 
     class MarketValue:
         URL = "//a[@class='data-header__market-value-wrapper']//@href"
@@ -104,10 +111,11 @@ class Players:
 
 class Clubs:
     class Profile:
-        URL = "//div[@class='datenfakten-wappen']//@href"
-        NAME = "//header//h1//text()"
+        # Updated for new Transfermarkt HTML structure (2024)
+        URL = "//link[@rel='canonical']//@href"
+        NAME = "//div[@class='data-header__headline-container']//h1//text()"
         NAME_OFFICIAL = "//th[text()='Official club name:']//following::td[1]//text()"
-        IMAGE = "//div[@class='datenfakten-wappen']//@src"
+        IMAGE = "//div[@class='data-header__box--big']//img//@src"
         LEGAL_FORM = "//th[text()='Legal form:']//following::td[1]//text()"
         ADDRESS_LINE_1 = "//th[text()='Address:']//following::td[1]//text()"
         ADDRESS_LINE_2 = "//th[text()='Address:']//following::td[2]//text()"
@@ -138,50 +146,61 @@ class Clubs:
         CRESTS_HISTORICAL = "//div[@class='wappen-datenfakten-wappen']//@src"
 
     class Search:
-        BASE = "//div[@class='box'][h2[contains(text(), 'Clubs')]]"
-        NAMES = BASE + "//td[@class='hauptlink']//a//@title"
-        URLS = BASE + "//td[@class='hauptlink']//a//@href"
-        COUNTRIES = BASE + "//td[@class='zentriert']//img[@class='flaggenrahmen']//@title"
-        MARKET_VALUES = BASE + "//td[@class='rechts']//text()"
-        SQUADS = BASE + "//td[@class='zentriert']//text()"
+        # Updated for new Transfermarkt HTML structure (2024)
+        BASE = "//div[@id='yw1']"  # Club search results table container
+        RESULTS = BASE + "//table[@class='items']//tbody//tr[@class='odd' or @class='even']"
+        # Club names: td > table.inline-table > tbody > tr > td.hauptlink > a @title
+        NAMES = RESULTS + "//td//table[@class='inline-table']//td[@class='hauptlink']//a//@title"
+        # Club URLs: td > table.inline-table > tbody > tr > td.hauptlink > a @href
+        URLS = RESULTS + "//td//table[@class='inline-table']//td[@class='hauptlink']//a//@href"
+        # Countries: td.zentriert > img.flaggenrahmen @title
+        COUNTRIES = RESULTS + "//td[@class='zentriert']//img[@class='flaggenrahmen']//@title"
+        # Squad sizes: td.zentriert > a (contains the number)
+        SQUADS = RESULTS + "//td[@class='zentriert']//a//text()"
+        # Market values: td.rechts (contains € values)
+        MARKET_VALUES = RESULTS + "//td[@class='rechts']//text()"
 
     class Players:
-        PAST_FLAG = "//div[@id='yw1']//thead//text()"
-        CLUB_NAME = "//header//h1//text()"
+        # Updated for new Transfermarkt HTML structure (2024)
+        BASE = "//div[@id='yw1']"  # Club players table container
+        RESULTS = BASE + "//table[@class='items']//tbody//tr[@class='odd' or @class='even']"
+        PAST_FLAG = BASE + "//thead//text()"
+        CLUB_NAME = "//div[@class='data-header__headline-container']//h1//text()"
         CLUB_URL = "//li[@id='overview']//@href"
-        PAGE_NATIONALITIES = "//td[img[@class='flaggenrahmen']]"
-        PAGE_INFOS = "//td[@class='posrela']"
-        NAMES = (
-            "//td[@class='posrela']//a//text() | "
-            "//td[@class='hauptlink']//a[contains(@href, '/profil/spieler')]//text()"
-        )
-        URLS = "//td[@class='hauptlink']//@href"
-        POSITIONS = (
-            "//td[@class='posrela']//tr[2]//text() | "
-            "//div[@id='yw1']//tbody//tr[.//td[@class='hauptlink']"
-            "//a[contains(@href, '/profil/spieler')]]//td[4]//text()"
-        )
-        DOB_AGE = "//div[@id='yw1']//td[3]//text() | //div[@id='yw1']//td[5]//text()"
-        NATIONALITIES = ".//img//@title"
+        PAGE_NATIONALITIES = RESULTS + "//td[img[@class='flaggenrahmen']]"
+        PAGE_INFOS = RESULTS + "//td[@class='posrela']"
+        # Player names: td.posrela > table.inline-table > tbody > tr > td.hauptlink > a
+        NAMES = RESULTS + "//td[@class='posrela']//table[@class='inline-table']//td[@class='hauptlink']//a//text()"
+        # Player URLs: td.posrela > table.inline-table > tbody > tr > td.hauptlink > a @href
+        URLS = RESULTS + "//td[@class='posrela']//table[@class='inline-table']//td[@class='hauptlink']//a//@href"
+        # Positions: td.zentriert (first zentriert column after posrela)
+        POSITIONS = RESULTS + "//td[@class='zentriert'][1]//text()"
+        # Age: td.zentriert (second zentriert column)
+        DOB_AGE = RESULTS + "//td[@class='zentriert'][2]//text()"
+        # Nationalities: td.zentriert > img.flaggenrahmen @title
+        NATIONALITIES = RESULTS + "//td[@class='zentriert']//img[@class='flaggenrahmen']//@title"
         JOINED = ".//span/node()/@title"
         SIGNED_FROM = ".//a//img//@title"
-        MARKET_VALUES = "//td[@class='rechts hauptlink']//text()"
+        # Market values: td.rechts.hauptlink
+        MARKET_VALUES = RESULTS + "//td[@class='rechts hauptlink']//text()"
         STATUSES = ".//td[@class='hauptlink']//span//@title"
         JOINED_ON = ".//text()"
 
         class Present:
-            PAGE_SIGNED_FROM = "//div[@id='yw1']//td[8]"
-            PAGE_JOINED_ON = "//div[@id='yw1']//td[7]"
-            HEIGHTS = "//div[@id='yw1']//td[5]//text()"
-            FOOTS = "//div[@id='yw1']//td[6]//text()"
-            CONTRACTS = "//div[@id='yw1']//td[9]//text()"
+            # Contract: td.zentriert (fourth zentriert column)
+            # Using BASE + table path since RESULTS is not accessible in nested class
+            PAGE_SIGNED_FROM = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][3]"
+            PAGE_JOINED_ON = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]"
+            HEIGHTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][5]//text()"
+            FOOTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][6]//text()"
+            CONTRACTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]//text()"
 
         class Past:
-            PAGE_SIGNED_FROM = "//div[@id='yw1']//td[9]"
-            PAGE_JOINED_ON = "//div[@id='yw1']//td[8]"
-            CURRENT_CLUB = "//div[@id='yw1']//td[5]//img//@title"
-            HEIGHTS = "//div[@id='yw1']//td[6]/text()"
-            FOOTS = "//div[@id='yw1']//td[7]//text()"
+            PAGE_SIGNED_FROM = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][3]"
+            PAGE_JOINED_ON = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]"
+            CURRENT_CLUB = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][1]//img//@title"
+            HEIGHTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][5]//text()"
+            FOOTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][6]//text()"
 
     class Competitions:
         RECORD_HEADING = "//h2[contains(text(), 'Record')]"
@@ -193,13 +212,9 @@ class Clubs:
 
 class Competitions:
     class Profile:
-        URL = "//a[@class='tm-tab']//@href"
-        NAME = (
-            "//div[@class='data-header__headline-container']//h1//text() | "
-            "//h1[contains(@class, 'content-box-headline')]//text() | "
-            "//div[contains(@class, 'data-header')]//h1//text() | "
-            "//h1[not(contains(text(), 'Participating teams'))]//text()"
-        )
+        # Updated for new Transfermarkt HTML structure (2024)
+        URL = "//link[@rel='canonical']//@href"
+        NAME = "//div[@class='data-header__headline-container']//h1//text()"
         SEASON_DROPDOWN = (
             "//table[contains(., 'Filter by season:')]"
             "//td[contains(., 'Filter by season:')]/following-sibling::td[1] | "
@@ -219,15 +234,25 @@ class Competitions:
         )
 
     class Search:
-        BASE = "//div[@class='box'][h2[contains(text(), 'competitions')]]"
-        URLS = BASE + "//td//a//@href"
-        NAMES = BASE + "//td//a//@title"
-        COUNTRIES = BASE + "//td[@class='zentriert'][1]//@title"
-        CLUBS = BASE + "//td[@class='zentriert'][2]//text()"
-        PLAYERS = BASE + "//td[@class='rechts']//text()"
-        TOTAL_MARKET_VALUES = BASE + "//td[@class='zentriert'][3]//text()"
-        MEAN_MARKET_VALUES = BASE + "//td[@class='zentriert'][4]//text()"
-        CONTINENTS = BASE + "//td[@class='zentriert'][5]//text()"
+        # Updated for new Transfermarkt HTML structure (2024)
+        BASE = "//div[@id='yw1']"  # Competition search results table container
+        RESULTS = BASE + "//table[@class='items']//tbody//tr[@class='odd' or @class='even']"
+        # Competition URLs: td > a @href (direct link, not in inline-table)
+        URLS = RESULTS + "//td//a[contains(@href, '/wettbewerb/')]//@href"
+        # Competition names: td > a @title
+        NAMES = RESULTS + "//td//a[contains(@href, '/wettbewerb/')]//@title"
+        # Countries: td.zentriert > img.flaggenrahmen @title (first zentriert column)
+        COUNTRIES = RESULTS + "//td[@class='zentriert'][1]//img[@class='flaggenrahmen']//@title"
+        # Clubs: td.zentriert (second zentriert column, contains number)
+        CLUBS = RESULTS + "//td[@class='zentriert'][2]//text()"
+        # Players: td.rechts (contains player count)
+        PLAYERS = RESULTS + "//td[@class='rechts']//text()"
+        # Total market values: td.zentriert (third zentriert column)
+        TOTAL_MARKET_VALUES = RESULTS + "//td[@class='zentriert'][3]//text()"
+        # Mean market values: td.zentriert (fourth zentriert column)
+        MEAN_MARKET_VALUES = RESULTS + "//td[@class='zentriert'][4]//text()"
+        # Continents: td.zentriert (fifth zentriert column)
+        CONTINENTS = RESULTS + "//td[@class='zentriert'][5]//text()"
 
     class Clubs:
         # Match both regular clubs and national teams
