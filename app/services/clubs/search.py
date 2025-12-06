@@ -57,7 +57,7 @@ class TransfermarktClubSearch(TransfermarktBase):
                 print(f"Page HTML length: {len(page_html)}")
                 # Check if page contains expected content
                 if "transfermarkt" not in page_html.lower():
-                    print(f"WARNING: Page doesn't contain 'transfermarkt' - might be blocked or wrong page")
+                    print("WARNING: Page doesn't contain 'transfermarkt' - might be blocked or wrong page")
         except Exception as e:
             print(f"ERROR: Could not serialize page: {e}")
 
@@ -70,7 +70,7 @@ class TransfermarktClubSearch(TransfermarktBase):
         # Debug: Log what we found
         print(f"DEBUG: Found {len(clubs_names)} names, {len(clubs_urls)} URLs, {len(clubs_countries)} countries")
         if len(clubs_names) == 0:
-            print(f"WARNING: No clubs found! XPath might be wrong or page structure changed")
+            print("WARNING: No clubs found! XPath might be wrong or page structure changed")
             print(f"XPath NAMES: {Clubs.Search.NAMES}")
         clubs_ids = [extract_from_url(url) for url in clubs_urls]
 
