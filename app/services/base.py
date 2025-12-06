@@ -990,9 +990,11 @@ class TransfermarktBase:
             bsoup: BeautifulSoup = self.request_url_bsoup()
             # Check if content is suspiciously small (likely a block page)
             # Normal Transfermarkt pages are 50k+ bytes
-            if len(bsoup.get_text()) < 5000 and "transfermarkt" not in bsoup.get_text().lower():
+            content_text = bsoup.get_text()
+            content_len = len(content_text)
+            if content_len < 5000 and "transfermarkt" not in content_text.lower():
                 print(
-                    f"Suspiciously small content ({len(bsoup.get_text())} bytes) for {self.URL}, trying browser fallback",
+                    f"Suspiciously small content ({content_len} bytes) for {self.URL}, trying browser fallback",
                 )
                 raise ValueError("Content too small, likely blocked")
         except Exception as http_error:
@@ -1006,10 +1008,14 @@ class TransfermarktBase:
                         detail=f"Browser fallback returned empty content for {self.URL}",
                     )
                 # Validate browser content size
-                if len(browser_response.text) < 5000:
+                browser_content_len = len(browser_response.text)
+                if browser_content_len < 5000:
                     raise HTTPException(
                         status_code=500,
-                        detail=f"Browser fallback returned suspiciously small content ({len(browser_response.text)} bytes) for {self.URL}",
+                        detail=(
+                            f"Browser fallback returned suspiciously small content "
+                            f"({browser_content_len} bytes) for {self.URL}"
+                        ),
                     )
                 bsoup = BeautifulSoup(markup=browser_response.text, features="html.parser")
             except Exception as browser_error:
