@@ -72,7 +72,7 @@ class SmartSessionManager:
                 {
                     "http": proxy_url,
                     "https": proxy_url,
-                }
+                },
             )
 
         # Support for multiple proxy endpoints via environment variables
@@ -83,7 +83,7 @@ class SmartSessionManager:
                     {
                         "http": proxy_url,
                         "https": proxy_url,
-                    }
+                    },
                 )
 
         return proxies
@@ -433,7 +433,7 @@ class PlaywrightBrowserScraper:
                         "DNT": "1",
                         "Connection": "keep-alive",
                         "Upgrade-Insecure-Requests": "1",
-                    }
+                    },
                 )
 
                 # Navigate with realistic timing
