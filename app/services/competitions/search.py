@@ -25,7 +25,14 @@ class TransfermarktCompetitionSearch(TransfermarktBase):
     def __post_init__(self) -> None:
         """Initialize the TransfermarktCompetitionSearch class."""
         self.URL = self.URL.format(query=self.query, page_number=self.page_number)
-        self.page = self.request_url_page()
+        try:
+            self.page = self.request_url_page()
+            # Validate page was successfully loaded
+            if self.page is None:
+                raise ValueError(f"Failed to load page for URL: {self.URL}")
+        except Exception as e:
+            print(f"Failed to initialize TransfermarktCompetitionSearch for {self.URL}: {e}")
+            raise
 
     def __parse_search_results(self) -> list:
         """

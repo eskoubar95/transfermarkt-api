@@ -12,9 +12,16 @@ router = APIRouter()
 
 @router.get("/search/{competition_name}", response_model=schemas.CompetitionSearch)
 def search_competitions(competition_name: str, page_number: Optional[int] = 1):
-    tfmkt = TransfermarktCompetitionSearch(query=competition_name, page_number=page_number)
-    competitions = tfmkt.search_competitions()
-    return competitions
+    try:
+        tfmkt = TransfermarktCompetitionSearch(query=competition_name, page_number=page_number)
+        competitions = tfmkt.search_competitions()
+        # Validate we got actual results
+        if not competitions.get("results"):
+            print(f"Warning: No results found for competition search: {competition_name} (page {page_number})")
+        return competitions
+    except Exception as e:
+        print(f"Error in search_competitions for {competition_name}: {e}")
+        raise
 
 
 @router.get("/{competition_id}/clubs", response_model=schemas.CompetitionClubs, response_model_exclude_none=True)

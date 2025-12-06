@@ -1043,9 +1043,16 @@ class TransfermarktBase:
         if self.page is None:
             raise HTTPException(
                 status_code=500,
-                detail="Page not initialized. Unable to extract data from web page.",
+                detail=f"Page not initialized. Unable to extract data from web page. URL: {self.URL}",
             )
-        elements: list = self.page.xpath(xpath)
+        try:
+            elements: list = self.page.xpath(xpath)
+        except Exception as e:
+            print(f"XPath error for {xpath} on {self.URL}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"XPath extraction failed for {xpath} on {self.URL}: {e}",
+            )
         if remove_empty:
             elements_valid: list = [trim(e) for e in elements if trim(e)]
         else:
