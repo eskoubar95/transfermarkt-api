@@ -148,6 +148,86 @@ def debug_xpath(
         }
 
 
+@app.get("/debug/scraping", tags=["Debug"])
+def debug_scraping(
+    url: str = "https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query=Barcelona&Verein_page=1",
+):
+    """Debug scraping directly to see what's happening."""
+    try:
+        from lxml import etree
+
+        from app.services.base import PLAYWRIGHT_AVAILABLE, TransfermarktBase, _browser_scraper
+
+        # Create a test instance
+        test_base = TransfermarktBase(URL=url)
+
+        # Try HTTP request
+        http_success = False
+        http_error = None
+        http_content_length = 0
+        try:
+            response = test_base.make_request()
+            http_success = True
+            http_content_length = len(response.text) if response and response.text else 0
+        except Exception as e:
+            http_error = str(e)
+
+        # Try browser fallback
+        browser_success = False
+        browser_error = None
+        browser_content_length = 0
+        if not http_success and PLAYWRIGHT_AVAILABLE and _browser_scraper:
+            try:
+                import asyncio
+
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                browser_response = test_base.make_request_with_browser_fallback(use_browser=True)
+                browser_success = True
+                browser_content_length = len(browser_response.text) if browser_response and browser_response.text else 0
+            except Exception as e:
+                browser_error = str(e)
+
+        # Try full page request
+        page_success = False
+        page_error = None
+        page_content_length = 0
+        try:
+            page = test_base.request_url_page()
+            page_success = True
+            if page is not None:
+                page_html = etree.tostring(page, encoding="unicode")
+                page_content_length = len(page_html) if page_html else 0
+        except Exception as e:
+            page_error = str(e)
+
+        return {
+            "url": url,
+            "playwright_available": PLAYWRIGHT_AVAILABLE,
+            "browser_scraper_available": _browser_scraper is not None,
+            "http_request": {
+                "success": http_success,
+                "content_length": http_content_length,
+                "error": http_error,
+            },
+            "browser_fallback": {
+                "success": browser_success,
+                "content_length": browser_content_length,
+                "error": browser_error,
+            },
+            "page_request": {
+                "success": page_success,
+                "content_length": page_content_length,
+                "error": page_error,
+            },
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "traceback": __import__("traceback").format_exc(),
+        }
+
+
 @app.get("/", include_in_schema=False)
 def docs_redirect():
     return RedirectResponse(url="/docs")

@@ -777,6 +777,13 @@ class TransfermarktBase:
                 asyncio.set_event_loop(loop)
                 html_content = loop.run_until_complete(_browser_scraper.scrape_with_fallback(url))
 
+                # Validate browser content
+                if not html_content or len(html_content) < 100:
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Browser scraping returned empty or invalid content for {url}",
+                    )
+
                 # Track successful browser request
                 _monitor.record_browser_request(success=True)
 
@@ -790,6 +797,7 @@ class TransfermarktBase:
                 return mock_response
 
             except Exception as browser_error:
+                print(f"Browser scraping failed for {url}: {browser_error}")
                 # Track failed browser request
                 _monitor.record_browser_request(success=False)
                 print(f"Browser fallback also failed for {url}: {browser_error}")
@@ -981,14 +989,27 @@ class TransfermarktBase:
             bsoup: BeautifulSoup = self.request_url_bsoup()
         except Exception as http_error:
             # Try browser fallback
+            print(f"HTTP request failed for {self.URL}, trying browser fallback: {http_error}")
             try:
                 browser_response = self.make_request_with_browser_fallback(use_browser=True)
+                if not browser_response or not browser_response.text:
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Browser fallback returned empty content for {self.URL}",
+                    )
                 bsoup = BeautifulSoup(markup=browser_response.text, features="html.parser")
-            except Exception:
+            except Exception as browser_error:
+                print(f"Browser fallback also failed for {self.URL}: {browser_error}")
                 # If both fail, raise the original HTTP error
                 raise http_error
 
-        return self.convert_bsoup_to_page(bsoup=bsoup)
+        page = self.convert_bsoup_to_page(bsoup=bsoup)
+        if page is None:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to parse HTML content from {self.URL}",
+            )
+        return page
 
     def raise_exception_if_not_found(self, xpath: str):
         """
@@ -1022,9 +1043,16 @@ class TransfermarktBase:
         if self.page is None:
             raise HTTPException(
                 status_code=500,
-                detail="Page not initialized. Unable to extract data from web page.",
+                detail=f"Page not initialized. Unable to extract data from web page. URL: {self.URL}",
             )
-        elements: list = self.page.xpath(xpath)
+        try:
+            elements: list = self.page.xpath(xpath)
+        except Exception as e:
+            print(f"XPath error for {xpath} on {self.URL}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"XPath extraction failed for {xpath} on {self.URL}: {e}",
+            )
         if remove_empty:
             elements_valid: list = [trim(e) for e in elements if trim(e)]
         else:

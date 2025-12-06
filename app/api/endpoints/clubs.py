@@ -13,9 +13,16 @@ router = APIRouter()
 
 @router.get("/search/{club_name}", response_model=schemas.ClubSearch, response_model_exclude_none=True)
 def search_clubs(club_name: str, page_number: Optional[int] = 1) -> dict:
-    tfmkt = TransfermarktClubSearch(query=club_name, page_number=page_number)
-    found_clubs = tfmkt.search_clubs()
-    return found_clubs
+    try:
+        tfmkt = TransfermarktClubSearch(query=club_name, page_number=page_number)
+        found_clubs = tfmkt.search_clubs()
+        # Validate we got actual results
+        if not found_clubs.get("results"):
+            print(f"Warning: No results found for club search: {club_name} (page {page_number})")
+        return found_clubs
+    except Exception as e:
+        print(f"Error in search_clubs for {club_name}: {e}")
+        raise
 
 
 @router.get("/{club_id}/profile", response_model=schemas.ClubProfile, response_model_exclude_defaults=True)
