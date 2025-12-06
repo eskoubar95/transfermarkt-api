@@ -889,7 +889,8 @@ class TransfermarktBase:
             return True
 
         # Check for suspiciously short responses without transfermarkt content
-        if len(response.text) < 1000 and "transfermarkt" not in text_lower:
+        # Increased threshold to catch more block pages (normal pages are 50k+ bytes)
+        if len(response.text) < 5000 and "transfermarkt" not in text_lower:
             return True
 
         # Check for explicit block messages (but only if status code suggests it)
@@ -976,7 +977,7 @@ class TransfermarktBase:
     def request_url_page(self) -> ElementTree:
         """
         Fetch the web page content, parse it using BeautifulSoup, and convert it to an ElementTree.
-        Uses browser fallback if HTTP request fails.
+        Uses browser fallback if HTTP request fails or returns suspiciously small content.
 
         Returns:
             ElementTree: An ElementTree representing the parsed web page content for further
@@ -987,15 +988,28 @@ class TransfermarktBase:
         """
         try:
             bsoup: BeautifulSoup = self.request_url_bsoup()
+            # Check if content is suspiciously small (likely a block page)
+            # Normal Transfermarkt pages are 50k+ bytes
+            if len(bsoup.get_text()) < 5000 and "transfermarkt" not in bsoup.get_text().lower():
+                print(
+                    f"Suspiciously small content ({len(bsoup.get_text())} bytes) for {self.URL}, trying browser fallback",
+                )
+                raise ValueError("Content too small, likely blocked")
         except Exception as http_error:
             # Try browser fallback
-            print(f"HTTP request failed for {self.URL}, trying browser fallback: {http_error}")
+            print(f"HTTP request failed or blocked for {self.URL}, trying browser fallback: {http_error}")
             try:
                 browser_response = self.make_request_with_browser_fallback(use_browser=True)
                 if not browser_response or not browser_response.text:
                     raise HTTPException(
                         status_code=500,
                         detail=f"Browser fallback returned empty content for {self.URL}",
+                    )
+                # Validate browser content size
+                if len(browser_response.text) < 5000:
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Browser fallback returned suspiciously small content ({len(browser_response.text)} bytes) for {self.URL}",
                     )
                 bsoup = BeautifulSoup(markup=browser_response.text, features="html.parser")
             except Exception as browser_error:
