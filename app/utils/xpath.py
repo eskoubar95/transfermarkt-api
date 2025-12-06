@@ -174,9 +174,11 @@ class Clubs:
         # Player URLs: td.posrela > table.inline-table > tbody > tr > td.hauptlink > a @href
         URLS = RESULTS + "//td[@class='posrela']//table[@class='inline-table']//td[@class='hauptlink']//a//@href"
         # Positions: td.zentriert (first zentriert column after posrela)
-        POSITIONS = RESULTS + "//td[@class='zentriert'][1]//text()"
-        # Age: td.zentriert (second zentriert column)
-        DOB_AGE = RESULTS + "//td[@class='zentriert'][2]//text()"
+        # Note: First zentriert might have additional classes, so we need to find the first pure zentriert or count from posrela
+        POSITIONS = RESULTS + "//td[contains(@class, 'zentriert')][1]//text()"
+        # Age: DOB/Age is in the 5th td (index 5, 0-based) - this is the zentriert column with date
+        # Structure: TD[0]=number, TD[1]=posrela, TD[2-4]=other, TD[5]=DOB/Age (zentriert)
+        DOB_AGE = RESULTS + "//td[5]//text()"
         # Nationalities: td.zentriert > img.flaggenrahmen @title
         NATIONALITIES = RESULTS + "//td[@class='zentriert']//img[@class='flaggenrahmen']//@title"
         JOINED = ".//span/node()/@title"
