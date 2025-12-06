@@ -3,7 +3,7 @@ from typing import Optional
 
 from app.services.base import TransfermarktBase
 from app.utils.regex import REGEX_DOB
-from app.utils.utils import extract_from_url, safe_regex
+from app.utils.utils import extract_from_url, safe_regex, trim
 from app.utils.xpath import Clubs
 
 

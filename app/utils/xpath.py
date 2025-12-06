@@ -213,8 +213,14 @@ class Clubs:
 class Competitions:
     class Profile:
         # Updated for new Transfermarkt HTML structure (2024)
+        # Using more robust fallbacks from main branch
         URL = "//link[@rel='canonical']//@href"
-        NAME = "//div[@class='data-header__headline-container']//h1//text()"
+        NAME = (
+            "//div[@class='data-header__headline-container']//h1//text() | "
+            "//h1[contains(@class, 'content-box-headline')]//text() | "
+            "//div[contains(@class, 'data-header')]//h1//text() | "
+            "//h1[not(contains(text(), 'Participating teams'))]//text()"
+        )
         SEASON_DROPDOWN = (
             "//table[contains(., 'Filter by season:')]"
             "//td[contains(., 'Filter by season:')]/following-sibling::td[1] | "
