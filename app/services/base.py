@@ -14,9 +14,9 @@ from lxml import etree
 from playwright.async_api import async_playwright
 from requests import Response, Session, TooManyRedirects
 
+from app.settings import settings
 from app.utils.utils import trim
 from app.utils.xpath import Pagination
-from app.settings import settings
 
 
 class SmartSessionManager:
@@ -41,22 +41,22 @@ class SmartSessionManager:
         """Load curated list of real browser User-Agents."""
         return [
             # Chrome Windows
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",  # noqa: E501
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",  # noqa: E501
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",  # noqa: E501
             # Chrome macOS
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",  # noqa: E501
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",  # noqa: E501
             # Firefox Windows
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0",
             # Firefox macOS
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/121.0",
             # Safari macOS
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",  # noqa: E501
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",  # noqa: E501
             # Edge Windows
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",  # noqa: E501
             # Chrome Linux (for Railway compatibility)
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         ]
@@ -69,17 +69,17 @@ class SmartSessionManager:
         if all([settings.PROXY_HOST, settings.PROXY_PORT, settings.PROXY_USERNAME, settings.PROXY_PASSWORD]):
             proxy_url = f"http://{settings.PROXY_USERNAME}:{settings.PROXY_PASSWORD}@{settings.PROXY_HOST}:{settings.PROXY_PORT}"
             proxies.append({
-                'http': proxy_url,
-                'https': proxy_url
+                "http": proxy_url,
+                "https": proxy_url,
             })
 
         # Support for multiple proxy endpoints via environment variables
         for i in range(1, 11):  # Support up to 10 proxies
-            proxy_url = os.getenv(f'PROXY_URL_{i}')
+            proxy_url = os.getenv(f"PROXY_URL_{i}")
             if proxy_url:
                 proxies.append({
-                    'http': proxy_url,
-                    'https': proxy_url
+                    "http": proxy_url,
+                    "https": proxy_url,
                 })
 
         return proxies
@@ -104,15 +104,15 @@ class SmartSessionManager:
         if session_id in self.sessions:
             session_data = self.sessions[session_id]
             if not self._is_session_expired(session_data):
-                return session_data['session']
+                return session_data["session"]
 
         # Create new session
         session = self._create_session()
         self.sessions[session_id] = {
-            'session': session,
-            'created_at': self._get_timestamp(),
-            'user_agent': session.headers.get('User-Agent'),
-            'proxy': self._get_random_proxy() if self.proxies else None
+            "session": session,
+            "created_at": self._get_timestamp(),
+            "user_agent": session.headers.get("User-Agent"),
+            "proxy": self._get_random_proxy() if self.proxies else None,
         }
 
         # Record session creation
@@ -160,7 +160,7 @@ class SmartSessionManager:
 
         headers = {
             "User-Agent": user_agent,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",  # noqa: E501
             "Accept-Language": random.choice(accept_languages),
             "Accept-Encoding": "gzip, deflate, br",
             "Referer": "https://www.transfermarkt.com/",
@@ -194,7 +194,7 @@ class SmartSessionManager:
     def _is_session_expired(self, session_data: Dict) -> bool:
         """Check if a session has expired."""
         import time
-        return time.time() - session_data['created_at'] > self.session_timeout
+        return time.time() - session_data["created_at"] > self.session_timeout
 
     def _cleanup_expired_sessions(self):
         """Remove expired sessions."""
@@ -202,7 +202,7 @@ class SmartSessionManager:
         current_time = time.time()
         expired_sessions = [
             session_id for session_id, data in self.sessions.items()
-            if current_time - data['created_at'] > self.session_timeout
+            if current_time - data["created_at"] > self.session_timeout
         ]
         for session_id in expired_sessions:
             del self.sessions[session_id]
@@ -212,25 +212,24 @@ class SmartSessionManager:
         if not self.sessions:
             return
 
-        oldest_session = min(self.sessions.items(), key=lambda x: x[1]['created_at'])
+        oldest_session = min(self.sessions.items(), key=lambda x: x[1]["created_at"])
         del self.sessions[oldest_session[0]]
 
     def get_session_stats(self) -> Dict:
         """Get statistics about current sessions."""
         import time
-        current_time = time.time()
 
         active_sessions = len([s for s in self.sessions.values() if not self._is_session_expired(s)])
         total_sessions = len(self.sessions)
         proxies_available = len(self.proxies)
 
         return {
-            'active_sessions': active_sessions,
-            'total_sessions': total_sessions,
-            'expired_sessions': total_sessions - active_sessions,
-            'proxies_available': proxies_available,
-            'user_agents_available': len(self.user_agents),
-            'session_timeout_seconds': self.session_timeout
+            "active_sessions": active_sessions,
+            "total_sessions": total_sessions,
+            "expired_sessions": total_sessions - active_sessions,
+            "proxies_available": proxies_available,
+            "user_agents_available": len(self.user_agents),
+            "session_timeout_seconds": self.session_timeout,
         }
 
 
@@ -275,7 +274,7 @@ class AntiScrapingMonitor:
 
         if response_time > 0:
             # Calculate running average
-            self.avg_response_time = (self.avg_response_time * (self.requests_total - 1) + response_time) / self.requests_total
+            self.avg_response_time = (self.avg_response_time * (self.requests_total - 1) + response_time) / self.requests_total  # noqa: E501
 
     def record_retry(self):
         """Record that a retry was performed."""
@@ -299,24 +298,24 @@ class AntiScrapingMonitor:
         success_rate = (self.requests_successful / self.requests_total * 100) if self.requests_total > 0 else 0
         block_rate = (self.blocks_detected / self.requests_total * 100) if self.requests_total > 0 else 0
 
-        browser_success_rate = (self.browser_successes / self.browser_requests * 100) if self.browser_requests > 0 else 0
+        browser_success_rate = (self.browser_successes / self.browser_requests * 100) if self.browser_requests > 0 else 0  # noqa: E501
 
         return {
-            'uptime_seconds': uptime,
-            'requests_total': self.requests_total,
-            'requests_successful': self.requests_successful,
-            'requests_failed': self.requests_failed,
-            'success_rate_percent': round(success_rate, 2),
-            'blocks_detected': self.blocks_detected,
-            'block_rate_percent': round(block_rate, 2),
-            'retries_performed': self.retries_performed,
-            'sessions_created': self.sessions_created,
-            'avg_response_time_seconds': round(self.avg_response_time, 3),
-            'browser_requests': self.browser_requests,
-            'browser_successes': self.browser_successes,
-            'browser_success_rate_percent': round(browser_success_rate, 2),
-            'session_manager_stats': _session_manager.get_session_stats(),
-            'retry_manager_stats': _retry_manager.get_retry_stats()
+            "uptime_seconds": uptime,
+            "requests_total": self.requests_total,
+            "requests_successful": self.requests_successful,
+            "requests_failed": self.requests_failed,
+            "success_rate_percent": round(success_rate, 2),
+            "blocks_detected": self.blocks_detected,
+            "block_rate_percent": round(block_rate, 2),
+            "retries_performed": self.retries_performed,
+            "sessions_created": self.sessions_created,
+            "avg_response_time_seconds": round(self.avg_response_time, 3),
+            "browser_requests": self.browser_requests,
+            "browser_successes": self.browser_successes,
+            "browser_success_rate_percent": round(browser_success_rate, 2),
+            "session_manager_stats": _session_manager.get_session_stats(),
+            "retry_manager_stats": _retry_manager.get_retry_stats(),
         }
 
     def reset_stats(self):
@@ -352,10 +351,10 @@ class PlaywrightBrowserScraper:
     def __init__(self):
         self.user_agents = _session_manager.user_agents
         self.viewport_sizes = [
-            {'width': 1920, 'height': 1080},
-            {'width': 1366, 'height': 768},
-            {'width': 1536, 'height': 864},
-            {'width': 1440, 'height': 900},
+            {"width": 1920, "height": 1080},
+            {"width": 1366, "height": 768},
+            {"width": 1536, "height": 864},
+            {"width": 1440, "height": 900},
         ]
         self.timeout = settings.BROWSER_TIMEOUT
         self.headless = settings.BROWSER_HEADLESS
@@ -376,16 +375,16 @@ class PlaywrightBrowserScraper:
             browser = await p.chromium.launch(
                 headless=self.headless,
                 args=[
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--disable-gpu',
-                    '--disable-web-security',
-                    '--disable-features=VizDisplayCompositor'
-                ]
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-accelerated-2d-canvas",
+                    "--no-first-run",
+                    "--no-zygote",
+                    "--disable-gpu",
+                    "--disable-web-security",
+                    "--disable-features=VizDisplayCompositor",
+                ],
             )
 
             try:
@@ -393,10 +392,10 @@ class PlaywrightBrowserScraper:
                 context = await browser.new_context(
                     user_agent=random.choice(self.user_agents),
                     viewport=random.choice(self.viewport_sizes),
-                    locale='en-US',
-                    timezone_id='Europe/Copenhagen',
-                    geolocation={'latitude': 55.6761, 'longitude': 12.5683},  # Copenhagen coordinates
-                    permissions=['geolocation'],
+                    locale="en-US",
+                    timezone_id="Europe/Copenhagen",
+                    geolocation={"latitude": 55.6761, "longitude": 12.5683},  # Copenhagen coordinates
+                    permissions=["geolocation"],
                     # Reduce fingerprinting
                     device_scale_factor=1,
                     is_mobile=False,
@@ -410,16 +409,16 @@ class PlaywrightBrowserScraper:
 
                 # Set additional headers to mimic real browser
                 await page.set_extra_http_headers({
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-                    'Accept-Language': 'en-US,en;q=0.9,da;q=0.8',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'DNT': '1',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",  # noqa: E501
+                    "Accept-Language": "en-US,en;q=0.9,da;q=0.8",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "DNT": "1",
+                    "Connection": "keep-alive",
+                    "Upgrade-Insecure-Requests": "1",
                 })
 
                 # Navigate with realistic timing
-                await page.goto(url, wait_until='domcontentloaded')
+                await page.goto(url, wait_until="domcontentloaded")
 
                 # Wait for potential anti-bot checks (reduced delay for speed)
                 # If behavioral simulation is disabled, use minimal delay
@@ -439,7 +438,7 @@ class PlaywrightBrowserScraper:
 
                 # Wait for network to be idle (with timeout to avoid hanging)
                 try:
-                    await page.wait_for_load_state('networkidle', timeout=5000)  # 5 second timeout
+                    await page.wait_for_load_state("networkidle", timeout=5000)  # 5 second timeout
                 except Exception:
                     pass  # Continue even if networkidle times out
 
@@ -460,6 +459,7 @@ class PlaywrightBrowserScraper:
             });
 
             // Override plugins (make it look like a real browser)
+            // noqa: E501, Q000
             Object.defineProperty(navigator, 'plugins', {
                 get: () => [
                     { name: 'Chrome PDF Plugin', description: 'Portable Document Format', filename: 'internal-pdf-viewer' },
@@ -492,8 +492,8 @@ class PlaywrightBrowserScraper:
         # Minimal mouse movements (reduced count and delay)
         viewport = await page.viewport_size()
         for _ in range(random.randint(1, 3)):  # Reduced from 3-8 to 1-3
-            x = random.randint(100, viewport['width'] - 100)
-            y = random.randint(100, viewport['height'] - 100)
+            x = random.randint(100, viewport["width"] - 100)
+            y = random.randint(100, viewport["height"] - 100)
             await page.mouse.move(x, y)
             await asyncio.sleep(random.uniform(0.05, 0.2))  # Reduced delay
 
@@ -519,7 +519,7 @@ class PlaywrightBrowserScraper:
             print(f"Browser scraping failed for {url}: {e}")
             # Fallback to HTTP request
             response = _retry_manager.execute_with_retry(
-                lambda: requests.get(url, headers=_session_manager.get_session().headers)
+                lambda: requests.get(url, headers=_session_manager.get_session().headers),
             )
             return response.text
 
@@ -579,7 +579,7 @@ class RetryManager:
                 last_exception = e
 
                 # Don't retry on client errors (4xx) except rate limits
-                if hasattr(e, 'status_code') and 400 <= e.status_code < 500:
+                if hasattr(e, "status_code") and 400 <= e.status_code < 500:
                     if e.status_code in [429, 503]:  # Rate limit or service unavailable
                         continue  # Retry these
                     else:
@@ -638,7 +638,7 @@ class RetryManager:
             except (requests.exceptions.RequestException, HTTPException) as e:
                 last_exception = e
 
-                if hasattr(e, 'status_code') and 400 <= e.status_code < 500:
+                if hasattr(e, "status_code") and 400 <= e.status_code < 500:
                     if e.status_code in [429, 503]:
                         continue
                     else:
@@ -657,12 +657,12 @@ class RetryManager:
             Dict: Retry configuration and performance metrics.
         """
         return {
-            'max_attempts': self.max_attempts,
-            'base_delay_seconds': self.base_delay,
-            'max_delay_seconds': self.max_delay,
-            'exponential_base': self.exponential_base,
-            'jitter_factor': self.jitter_factor,
-            'delay_range': f"{self.base_delay:.1f}-{self.max_delay:.1f}s"
+            "max_attempts": self.max_attempts,
+            "base_delay_seconds": self.base_delay,
+            "max_delay_seconds": self.max_delay,
+            "exponential_base": self.exponential_base,
+            "jitter_factor": self.jitter_factor,
+            "delay_range": f"{self.base_delay:.1f}-{self.max_delay:.1f}s",
         }
 
 
@@ -740,9 +740,9 @@ class TransfermarktBase:
                 # Create mock response
                 mock_response = Response()
                 mock_response.status_code = 200
-                mock_response._content = html_content.encode('utf-8')
+                mock_response._content = html_content.encode("utf-8")
                 mock_response.url = url
-                mock_response.headers = {'Content-Type': 'text/html'}
+                mock_response.headers = {"Content-Type": "text/html"}
 
                 return mock_response
 
@@ -780,7 +780,7 @@ class TransfermarktBase:
                 # Double-check session is available
                 if self.session is None:
                     self.session = _session_manager.get_session(self.session_id)
-                
+
                 response: Response = self.session.get(url=url, timeout=30)
                 response_time = self._get_timestamp() - start_time
 
@@ -827,41 +827,41 @@ class TransfermarktBase:
             bool: True if block is detected
         """
         text_lower = response.text.lower()
-        
+
         # First check status codes - these are definitive
         if response.status_code in [403, 429, 503]:
             # For 403, check if it's actually a block page (not just a 403 with valid content)
             if response.status_code == 403:
                 # If we have substantial content with transfermarkt branding, it's likely not a block
-                if len(response.text) > 5000 and 'transfermarkt' in text_lower:
+                if len(response.text) > 5000 and "transfermarkt" in text_lower:
                     return False
             return True
-        
+
         # Check for suspiciously short responses without transfermarkt content
-        if len(response.text) < 1000 and 'transfermarkt' not in text_lower:
+        if len(response.text) < 1000 and "transfermarkt" not in text_lower:
             return True
-        
+
         # Check for explicit block messages (but only if status code suggests it)
         # These keywords alone aren't enough - they appear in normal HTML too
         explicit_block_phrases = [
-            'access denied',
-            'you have been blocked',
-            'your access has been blocked',
-            'rate limit exceeded',
-            'too many requests',
+            "access denied",
+            "you have been blocked",
+            "your access has been blocked",
+            "rate limit exceeded",
+            "too many requests",
         ]
-        
+
         # Only flag if we find explicit block phrases AND status suggests blocking
         if response.status_code >= 400:
             for phrase in explicit_block_phrases:
                 if phrase in text_lower:
                     return True
-        
+
         # CAPTCHA detection - more specific
         captcha_indicators = [
-            'captcha' in text_lower and ('solve' in text_lower or 'verify' in text_lower),
-            'recaptcha' in text_lower,
-            'hcaptcha' in text_lower,
+            "captcha" in text_lower and ("solve" in text_lower or "verify" in text_lower),
+            "recaptcha" in text_lower,
+            "hcaptcha" in text_lower,
         ]
         if any(captcha_indicators):
             return True
@@ -890,11 +890,14 @@ class TransfermarktBase:
             # Try browser fallback
             try:
                 response = self.make_request_with_browser_fallback(use_browser=True)
-            except Exception as browser_error:
+            except Exception:
                 # If both fail, raise the original HTTP error
                 raise http_error
 
-        return BeautifulSoup(markup=response.content if hasattr(response, 'content') else response.text, features="html.parser")
+        return BeautifulSoup(  # noqa: E501
+            markup=response.content if hasattr(response, "content") else response.text,
+            features="html.parser",
+        )
 
     @staticmethod
     def convert_bsoup_to_page(bsoup: BeautifulSoup) -> ElementTree:
@@ -913,7 +916,7 @@ class TransfermarktBase:
         page = etree.HTML(str(bsoup))
         if page is None:
             raise HTTPException(
-                status_code=500, detail="Failed to parse HTML content from the web page"
+                status_code=500, detail="Failed to parse HTML content from the web page",
             )
         return page
 
@@ -936,7 +939,7 @@ class TransfermarktBase:
             try:
                 browser_response = self.make_request_with_browser_fallback(use_browser=True)
                 bsoup = BeautifulSoup(markup=browser_response.text, features="html.parser")
-            except Exception as browser_error:
+            except Exception:
                 # If both fail, raise the original HTTP error
                 raise http_error
 
@@ -973,7 +976,7 @@ class TransfermarktBase:
         """
         if self.page is None:
             raise HTTPException(
-                status_code=500, detail="Page not initialized. Unable to extract data from web page."
+                status_code=500, detail="Page not initialized. Unable to extract data from web page.",
             )
         elements: list = self.page.xpath(xpath)
         if remove_empty:
@@ -1015,7 +1018,7 @@ class TransfermarktBase:
         """
         if self.page is None:
             raise HTTPException(
-                status_code=500, detail="Page not initialized. Unable to extract data from web page."
+                status_code=500, detail="Page not initialized. Unable to extract data from web page.",
             )
         element = self.page.xpath(xpath)
 
@@ -1089,11 +1092,11 @@ class TransfermarktBase:
             Dict: Retry configuration and statistics.
         """
         return {
-            'max_attempts': _retry_manager.max_attempts,
-            'base_delay': _retry_manager.base_delay,
-            'max_delay': _retry_manager.max_delay,
-            'exponential_base': _retry_manager.exponential_base,
-            'jitter_factor': _retry_manager.jitter_factor
+            "max_attempts": _retry_manager.max_attempts,
+            "base_delay": _retry_manager.base_delay,
+            "max_delay": _retry_manager.max_delay,
+            "exponential_base": _retry_manager.exponential_base,
+            "jitter_factor": _retry_manager.jitter_factor,
         }
 
     @staticmethod
@@ -1115,7 +1118,7 @@ class TransfermarktBase:
             Dict: Complete monitoring data including success rates, blocks, performance metrics.
         """
         stats = _monitor.get_stats()
-        stats['browser_scraping_available'] = True
-        stats['browser_user_agents'] = len(_browser_scraper.user_agents)
-        stats['browser_viewports'] = len(_browser_scraper.viewport_sizes)
+        stats["browser_scraping_available"] = True
+        stats["browser_user_agents"] = len(_browser_scraper.user_agents)
+        stats["browser_viewports"] = len(_browser_scraper.viewport_sizes)
         return stats

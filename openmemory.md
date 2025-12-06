@@ -70,8 +70,36 @@ API service til at hente data fra Transfermarkt ved hjælp af web scraping. Proj
 
 ### Error Handling
 - `get_text_by_xpath()` returnerer `None` hvis element ikke findes
+- `get_text_by_xpath()` og `get_list_by_xpath()` rejser `HTTPException` hvis `self.page` er `None` (page ikke initialiseret)
+- `convert_bsoup_to_page()` rejser `HTTPException` hvis HTML parsing fejler og returnerer `None`
 - `remove_str()` håndterer None korrekt (returnerer None hvis input ikke er string)
 - Pydantic validators håndterer None værdier korrekt når felter er Optional
+
+### Anti-Bot Protection
+- **SmartSessionManager**: Avanceret session håndtering med User-Agent rotation (12+ forskellige UAs)
+- **RetryManager**: Intelligent retry logic med exponential backoff og jitter
+- **Proxy Support**: Residential proxy integration (Bright Data/Oxylabs kompatibel)
+- Browser-lignende headers med dynamisk Sec-Fetch-* værdier
+- Session persistence med configurable timeouts
+- Railway-optimerede environment variables
+
+**Implementerede komponenter:**
+- `SmartSessionManager` klasse med session rotation og cleanup
+- `RetryManager` klasse med exponential backoff (1-3 sekunder delays)
+- `AntiScrapingMonitor` klasse med comprehensive tracking
+- `PlaywrightBrowserScraper` klasse med real browser simulation
+- Railway environment variable support i `settings.py`
+- Proxy konfiguration klar (men deaktiveret - kører proxy-frit)
+- Browser fingerprinting avoidance og behavioral simulation
+- FastAPI monitoring endpoints: `/monitoring/anti-scraping`, `/health`, `/test/browser-scraping`
+- Success rate tracking, block detection, performance metrics
+- JavaScript execution capabilities og Cloudflare bypass
+
+**Konfiguration:**
+- Se `RAILWAY_ENV_CONFIG.md` for komplet setup guide
+- Environment variables for session timeouts, delays, og proxy credentials
+- Understøtter op til 10 proxy endpoints
+- Jitter og randomization for anti-detection
 
 ### Club Competitions Service
 **Location:** `app/services/clubs/competitions.py`

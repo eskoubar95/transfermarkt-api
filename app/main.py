@@ -59,6 +59,7 @@ def test_browser_scraping(url: str = "https://httpbin.org/html", full: bool = Fa
     """Test browser scraping capabilities with specified URL."""
     try:
         import asyncio
+
         from app.services.base import _browser_scraper
 
         loop = asyncio.new_event_loop()
@@ -66,14 +67,14 @@ def test_browser_scraping(url: str = "https://httpbin.org/html", full: bool = Fa
 
         # Test with specified URL
         result = loop.run_until_complete(
-            _browser_scraper.scrape_with_browser(url)
+            _browser_scraper.scrape_with_browser(url),
         )
 
         if full:
             return {
                 "status": "success",
                 "url": url,
-                "content": result
+                "content": result,
             }
         else:
             return {
@@ -81,13 +82,13 @@ def test_browser_scraping(url: str = "https://httpbin.org/html", full: bool = Fa
                 "url": url,
                 "content_length": len(result),
                 "has_transfermarkt": "transfermarkt" in result.lower(),
-                "preview": result[:500] + "..." if len(result) > 500 else result
+                "preview": result[:500] + "..." if len(result) > 500 else result,
             }
     except Exception as e:
         return {
             "status": "error",
             "url": url,
-            "error": str(e)
+            "error": str(e),
         }
 
 
@@ -114,27 +115,27 @@ def debug_xpath(url: str = "https://www.transfermarkt.com/schnellsuche/ergebnis/
                 "urls": clubs_urls,
                 "countries": clubs_countries,
                 "squads": clubs_squads,
-                "market_values": clubs_market_values
+                "market_values": clubs_market_values,
             },
             "counts": {
                 "names": len(clubs_names),
                 "urls": len(clubs_urls),
                 "countries": len(clubs_countries),
                 "squads": len(clubs_squads),
-                "market_values": len(clubs_market_values)
+                "market_values": len(clubs_market_values),
             },
             "xpath_definitions": {
                 "NAMES": Clubs.Search.NAMES,
                 "URLS": Clubs.Search.URLS,
                 "COUNTRIES": Clubs.Search.COUNTRIES,
                 "SQUADS": Clubs.Search.SQUADS,
-                "MARKET_VALUES": Clubs.Search.MARKET_VALUES
-            }
+                "MARKET_VALUES": Clubs.Search.MARKET_VALUES,
+            },
         }
     except Exception as e:
         return {
             "error": str(e),
-            "traceback": __import__('traceback').format_exc()
+            "traceback": __import__("traceback").format_exc(),
         }
 
 

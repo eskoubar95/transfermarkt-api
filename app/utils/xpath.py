@@ -189,18 +189,18 @@ class Clubs:
         class Present:
             # Contract: td.zentriert (fourth zentriert column)
             # Using BASE + table path since RESULTS is not accessible in nested class
-            PAGE_SIGNED_FROM = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][3]"
-            PAGE_JOINED_ON = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]"
-            HEIGHTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][5]//text()"
-            FOOTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][6]//text()"
-            CONTRACTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]//text()"
+            PAGE_SIGNED_FROM = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][3]"  # noqa: E501
+            PAGE_JOINED_ON = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]"  # noqa: E501
+            HEIGHTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][5]//text()"  # noqa: E501
+            FOOTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][6]//text()"  # noqa: E501
+            CONTRACTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]//text()"  # noqa: E501
 
         class Past:
-            PAGE_SIGNED_FROM = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][3]"
-            PAGE_JOINED_ON = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]"
-            CURRENT_CLUB = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][1]//img//@title"
-            HEIGHTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][5]//text()"
-            FOOTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][6]//text()"
+            PAGE_SIGNED_FROM = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][3]"  # noqa: E501
+            PAGE_JOINED_ON = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][4]"  # noqa: E501
+            CURRENT_CLUB = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][1]//img//@title"  # noqa: E501
+            HEIGHTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][5]//text()"  # noqa: E501
+            FOOTS = "//div[@id='yw1']//table[@class='items']//tbody//tr[@class='odd' or @class='even']//td[@class='zentriert'][6]//text()"  # noqa: E501
 
     class Competitions:
         RECORD_HEADING = "//h2[contains(text(), 'Record')]"

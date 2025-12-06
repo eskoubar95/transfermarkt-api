@@ -40,32 +40,32 @@ class TransfermarktPlayerSearch(TransfermarktBase):
         """
         # Get all result rows first
         search_results: list[ElementTree] = self.page.xpath(Players.Search.RESULTS)
-        
+
         results = []
         for result in search_results:
             # Extract data from each row individually (relative XPath)
             id_list = result.xpath(Players.Search.ID)
             idx = extract_from_url(id_list[0] if id_list else None)
-            
+
             name_list = result.xpath(Players.Search.NAME)
             name = trim(name_list[0]) if name_list and name_list[0] else None
-            
+
             position_list = result.xpath(Players.Search.POSITION)
             position = trim(position_list[0]) if position_list and position_list[0] else None
-            
+
             club_name_list = result.xpath(Players.Search.CLUB_NAME)
             club_name = trim(club_name_list[0]) if club_name_list and club_name_list[0] else None
-            
+
             club_image_list = result.xpath(Players.Search.CLUB_IMAGE)
             club_id = safe_regex(club_image_list[0] if club_image_list else None, REGEX_CHART_CLUB_ID, "club_id")
-            
+
             age_list = result.xpath(Players.Search.AGE)
             age = trim(age_list[0]) if age_list and age_list[0] else None
-            
+
             # Nationalities - relative to this specific row (can be multiple)
             nationalities_list = result.xpath(Players.Search.NATIONALITIES)
             nationalities = [trim(n) for n in nationalities_list if n and trim(n)]
-            
+
             market_value_list = result.xpath(Players.Search.MARKET_VALUE)
             market_value = trim(market_value_list[0]) if market_value_list and market_value_list[0] else None
 
@@ -82,7 +82,7 @@ class TransfermarktPlayerSearch(TransfermarktBase):
                         "age": age,
                         "nationalities": nationalities,
                         "marketValue": market_value,
-                    }
+                    },
                 )
 
         return results
