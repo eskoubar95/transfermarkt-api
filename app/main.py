@@ -154,7 +154,9 @@ def debug_scraping(
 ):
     """Debug scraping directly to see what's happening."""
     try:
-        from app.services.base import TransfermarktBase, PLAYWRIGHT_AVAILABLE, _browser_scraper
+        from lxml import etree
+
+        from app.services.base import PLAYWRIGHT_AVAILABLE, TransfermarktBase, _browser_scraper
 
         # Create a test instance
         test_base = TransfermarktBase(URL=url)
