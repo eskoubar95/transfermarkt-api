@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     REQUEST_DELAY_MIN: float = Field(default=1.0, description="Minimum delay between requests (seconds)")
     REQUEST_DELAY_MAX: float = Field(default=3.0, description="Maximum delay between requests (seconds)")
     ENABLE_BEHAVIORAL_SIMULATION: bool = Field(  # noqa: E501
-        default=False, description="Enable behavioral simulation (mouse movements, etc.)",
+        default=False,
+        description="Enable behavioral simulation (mouse movements, etc.)",
     )
 
     # Browser scraping configuration

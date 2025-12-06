@@ -93,7 +93,9 @@ def test_browser_scraping(url: str = "https://httpbin.org/html", full: bool = Fa
 
 
 @app.get("/debug/xpath", tags=["Debug"])
-def debug_xpath(url: str = "https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query=Barcelona&Verein_page=1"):
+def debug_xpath(
+    url: str = "https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query=Barcelona&Verein_page=1",
+):
     """Debug XPath extraction for club search."""
     try:
         from app.services.clubs.search import TransfermarktClubSearch

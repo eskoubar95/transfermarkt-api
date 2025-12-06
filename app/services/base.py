@@ -68,19 +68,23 @@ class SmartSessionManager:
         # Support for Bright Data / Oxylabs residential proxies
         if all([settings.PROXY_HOST, settings.PROXY_PORT, settings.PROXY_USERNAME, settings.PROXY_PASSWORD]):
             proxy_url = f"http://{settings.PROXY_USERNAME}:{settings.PROXY_PASSWORD}@{settings.PROXY_HOST}:{settings.PROXY_PORT}"
-            proxies.append({
-                "http": proxy_url,
-                "https": proxy_url,
-            })
+            proxies.append(
+                {
+                    "http": proxy_url,
+                    "https": proxy_url,
+                }
+            )
 
         # Support for multiple proxy endpoints via environment variables
         for i in range(1, 11):  # Support up to 10 proxies
             proxy_url = os.getenv(f"PROXY_URL_{i}")
             if proxy_url:
-                proxies.append({
-                    "http": proxy_url,
-                    "https": proxy_url,
-                })
+                proxies.append(
+                    {
+                        "http": proxy_url,
+                        "https": proxy_url,
+                    }
+                )
 
         return proxies
 
@@ -160,7 +164,9 @@ class SmartSessionManager:
 
         headers = {
             "User-Agent": user_agent,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",  # noqa: E501
+            "Accept": (
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+            ),  # noqa: E501
             "Accept-Language": random.choice(accept_languages),
             "Accept-Encoding": "gzip, deflate, br",
             "Referer": "https://www.transfermarkt.com/",
@@ -189,19 +195,23 @@ class SmartSessionManager:
     def _get_timestamp(self) -> float:
         """Get current timestamp for session management."""
         import time
+
         return time.time()
 
     def _is_session_expired(self, session_data: Dict) -> bool:
         """Check if a session has expired."""
         import time
+
         return time.time() - session_data["created_at"] > self.session_timeout
 
     def _cleanup_expired_sessions(self):
         """Remove expired sessions."""
         import time
+
         current_time = time.time()
         expired_sessions = [
-            session_id for session_id, data in self.sessions.items()
+            session_id
+            for session_id, data in self.sessions.items()
             if current_time - data["created_at"] > self.session_timeout
         ]
         for session_id in expired_sessions:
@@ -258,6 +268,7 @@ class AntiScrapingMonitor:
     def _get_timestamp(self) -> float:
         """Get current timestamp."""
         import time
+
         return time.time()
 
     def record_request(self, success: bool, response_time: float = 0.0, was_blocked: bool = False):
@@ -273,7 +284,9 @@ class AntiScrapingMonitor:
 
         if response_time > 0:
             # Calculate running average
-            self.avg_response_time = (self.avg_response_time * (self.requests_total - 1) + response_time) / self.requests_total  # noqa: E501
+            self.avg_response_time = (
+                self.avg_response_time * (self.requests_total - 1) + response_time
+            ) / self.requests_total  # noqa: E501
 
     def record_retry(self):
         """Record that a retry was performed."""
@@ -292,12 +305,15 @@ class AntiScrapingMonitor:
     def get_stats(self) -> Dict:
         """Get comprehensive monitoring statistics."""
         import time
+
         uptime = time.time() - self.last_reset
 
         success_rate = (self.requests_successful / self.requests_total * 100) if self.requests_total > 0 else 0
         block_rate = (self.blocks_detected / self.requests_total * 100) if self.requests_total > 0 else 0
 
-        browser_success_rate = (self.browser_successes / self.browser_requests * 100) if self.browser_requests > 0 else 0  # noqa: E501
+        browser_success_rate = (
+            (self.browser_successes / self.browser_requests * 100) if self.browser_requests > 0 else 0
+        )  # noqa: E501
 
         return {
             "uptime_seconds": uptime,
@@ -407,14 +423,18 @@ class PlaywrightBrowserScraper:
                 page = await context.new_page()
 
                 # Set additional headers to mimic real browser
-                await page.set_extra_http_headers({
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",  # noqa: E501
-                    "Accept-Language": "en-US,en;q=0.9,da;q=0.8",
-                    "Accept-Encoding": "gzip, deflate, br",
-                    "DNT": "1",
-                    "Connection": "keep-alive",
-                    "Upgrade-Insecure-Requests": "1",
-                })
+                await page.set_extra_http_headers(
+                    {
+                        "Accept": (
+                            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+                        ),  # noqa: E501
+                        "Accept-Language": "en-US,en;q=0.9,da;q=0.8",
+                        "Accept-Encoding": "gzip, deflate, br",
+                        "DNT": "1",
+                        "Connection": "keep-alive",
+                        "Upgrade-Insecure-Requests": "1",
+                    }
+                )
 
                 # Navigate with realistic timing
                 await page.goto(url, wait_until="domcontentloaded")
@@ -452,8 +472,7 @@ class PlaywrightBrowserScraper:
     async def _add_stealth_measures(self, context):
         """Add stealth measures to reduce browser fingerprinting."""
         # Override navigator properties
-        await context.add_init_script(  # noqa: E501, Q000
-            """
+        await context.add_init_script("""
             Object.defineProperty(navigator, 'webdriver', {
                 get: () => undefined,
             });
@@ -483,7 +502,7 @@ class PlaywrightBrowserScraper:
                     Promise.resolve({ state: Notification.permission }) :
                     originalQuery(parameters)
             );
-        """)
+        """)  # noqa: E501, Q000
 
     async def _simulate_human_behavior(self, page):
         """Simulate human-like browsing behavior (optimized for speed)."""
@@ -606,7 +625,7 @@ class RetryManager:
             float: Delay in seconds
         """
         # Exponential backoff: base_delay * (exponential_base ^ attempt)
-        exponential_delay = self.base_delay * (self.exponential_base ** attempt)
+        exponential_delay = self.base_delay * (self.exponential_base**attempt)
 
         # Add jitter to avoid detection patterns
         jitter = random.uniform(-self.jitter_factor, self.jitter_factor) * exponential_delay
@@ -733,6 +752,7 @@ class TransfermarktBase:
             # Create a mock Response object with browser content
             try:
                 import asyncio
+
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 html_content = loop.run_until_complete(_browser_scraper.scrape_with_fallback(url))
@@ -874,6 +894,7 @@ class TransfermarktBase:
     def _get_timestamp(self) -> float:
         """Get current timestamp for performance monitoring."""
         import time
+
         return time.time()
 
     def request_url_bsoup(self) -> BeautifulSoup:
@@ -919,7 +940,8 @@ class TransfermarktBase:
         page = etree.HTML(str(bsoup))
         if page is None:
             raise HTTPException(
-                status_code=500, detail="Failed to parse HTML content from the web page",
+                status_code=500,
+                detail="Failed to parse HTML content from the web page",
             )
         return page
 
@@ -979,7 +1001,8 @@ class TransfermarktBase:
         """
         if self.page is None:
             raise HTTPException(
-                status_code=500, detail="Page not initialized. Unable to extract data from web page.",
+                status_code=500,
+                detail="Page not initialized. Unable to extract data from web page.",
             )
         elements: list = self.page.xpath(xpath)
         if remove_empty:
@@ -1021,7 +1044,8 @@ class TransfermarktBase:
         """
         if self.page is None:
             raise HTTPException(
-                status_code=500, detail="Page not initialized. Unable to extract data from web page.",
+                status_code=500,
+                detail="Page not initialized. Unable to extract data from web page.",
             )
         element = self.page.xpath(xpath)
 
