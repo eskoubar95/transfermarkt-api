@@ -167,7 +167,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
             else []
         )
         if len(players_joined_on) != base_length:
-            players_joined_on = (players_joined_on + [None] * base_length)[:base_length]
+            players_joined_on = (players_joined_on + [""] * base_length)[:base_length]
 
         players_joined = (
             ["; ".join(e.xpath(Clubs.Players.JOINED)) if e is not None else "" for e in page_players_infos]
@@ -175,7 +175,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
             else []
         )
         if len(players_joined) != base_length:
-            players_joined = (players_joined + [None] * base_length)[:base_length]
+            players_joined = (players_joined + [""] * base_length)[:base_length]
 
         players_signed_from = (
             ["; ".join(e.xpath(Clubs.Players.SIGNED_FROM)) if e is not None else "" for e in page_players_signed_from]
@@ -183,7 +183,7 @@ class TransfermarktClubPlayers(TransfermarktBase):
             else []
         )
         if len(players_signed_from) != base_length:
-            players_signed_from = (players_signed_from + [None] * base_length)[:base_length]
+            players_signed_from = (players_signed_from + [""] * base_length)[:base_length]
 
         players_contracts = (
             [None] * base_length if self.past else self.get_list_by_xpath(Clubs.Players.Present.CONTRACTS)
