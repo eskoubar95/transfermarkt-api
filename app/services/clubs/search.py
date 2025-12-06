@@ -43,11 +43,35 @@ class TransfermarktClubSearch(TransfermarktBase):
                 football club found in the search results, including the club's unique identifier,
                 URL, name, country, squad size, and market value.
         """
+        # Debug: Check if page is valid
+        if self.page is None:
+            print(f"ERROR: Page is None for {self.URL}")
+            return []
+
+        # Debug: Try to get a sample of page content
+        try:
+            from lxml import etree
+
+            page_html = etree.tostring(self.page, encoding="unicode")
+            if page_html and len(page_html) > 0:
+                print(f"Page HTML length: {len(page_html)}")
+                # Check if page contains expected content
+                if "transfermarkt" not in page_html.lower():
+                    print(f"WARNING: Page doesn't contain 'transfermarkt' - might be blocked or wrong page")
+        except Exception as e:
+            print(f"ERROR: Could not serialize page: {e}")
+
         clubs_names = self.get_list_by_xpath(Clubs.Search.NAMES)
         clubs_urls = self.get_list_by_xpath(Clubs.Search.URLS)
         clubs_countries = self.get_list_by_xpath(Clubs.Search.COUNTRIES)
         clubs_squads = self.get_list_by_xpath(Clubs.Search.SQUADS)
         clubs_market_values = self.get_list_by_xpath(Clubs.Search.MARKET_VALUES)
+
+        # Debug: Log what we found
+        print(f"DEBUG: Found {len(clubs_names)} names, {len(clubs_urls)} URLs, {len(clubs_countries)} countries")
+        if len(clubs_names) == 0:
+            print(f"WARNING: No clubs found! XPath might be wrong or page structure changed")
+            print(f"XPath NAMES: {Clubs.Search.NAMES}")
         clubs_ids = [extract_from_url(url) for url in clubs_urls]
 
         return [
