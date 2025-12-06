@@ -27,6 +27,11 @@ class TransfermarktClubPlayers(TransfermarktBase):
 
     def __post_init__(self) -> None:
         """Initialize the TransfermarktClubPlayers class."""
+        # If season_id is None, use current year as default
+        if self.season_id is None:
+            from datetime import datetime
+
+            self.season_id = str(datetime.now().year)
         self.URL = self.URL.format(club_id=self.club_id, season_id=self.season_id)
         self.page = self.request_url_page()
         self.raise_exception_if_not_found(xpath=Clubs.Players.CLUB_NAME)
@@ -35,8 +40,15 @@ class TransfermarktClubPlayers(TransfermarktBase):
 
     def __update_season_id(self):
         """Update the season ID if it's not provided by extracting it from the website."""
-        if self.season_id is None:
-            self.season_id = extract_from_url(self.get_text_by_xpath(Clubs.Players.CLUB_URL), "season_id")
+        # Only update if we can extract it from the page (for validation)
+        try:
+            extracted_season = extract_from_url(self.get_text_by_xpath(Clubs.Players.CLUB_URL), "season_id")
+            if extracted_season and extracted_season != self.season_id:
+                # Page shows different season, update it
+                self.season_id = extracted_season
+        except Exception:
+            # If extraction fails, keep the original season_id
+            pass
 
     def __update_past_flag(self) -> None:
         """Check if the season is the current or if it's a past one and update the flag accordingly."""
@@ -245,6 +257,11 @@ class TransfermarktClubPlayers(TransfermarktBase):
                   the data was last updated.
         """
         self.response["id"] = self.club_id
+        self.response["seasonId"] = self.season_id
+        # Get club name from page
+        club_name = self.get_text_by_xpath(Clubs.Players.CLUB_NAME)
+        if club_name:
+            self.response["name"] = club_name
         self.response["players"] = self.__parse_club_players()
 
         return self.response
