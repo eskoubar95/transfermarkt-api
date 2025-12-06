@@ -8,6 +8,9 @@ COPY requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install playwright browsers if playwright is in requirements
+RUN python -c "import playwright" 2>/dev/null && playwright install chromium || true
+
 COPY . ./
 
 CMD ["python", "app/main.py"]

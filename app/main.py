@@ -60,7 +60,14 @@ def test_browser_scraping(url: str = "https://httpbin.org/html", full: bool = Fa
     try:
         import asyncio
 
-        from app.services.base import _browser_scraper
+        from app.services.base import PLAYWRIGHT_AVAILABLE, _browser_scraper
+
+        if not PLAYWRIGHT_AVAILABLE or _browser_scraper is None:
+            return {
+                "status": "error",
+                "url": url,
+                "error": "Playwright is not installed. Install it with: pip install playwright",
+            }
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
