@@ -217,7 +217,6 @@ class SmartSessionManager:
 
     def get_session_stats(self) -> Dict:
         """Get statistics about current sessions."""
-        import time
 
         active_sessions = len([s for s in self.sessions.values() if not self._is_session_expired(s)])
         total_sessions = len(self.sessions)
@@ -453,16 +452,20 @@ class PlaywrightBrowserScraper:
     async def _add_stealth_measures(self, context):
         """Add stealth measures to reduce browser fingerprinting."""
         # Override navigator properties
-        await context.add_init_script("""
+        await context.add_init_script(  # noqa: E501, Q000
+            """
             Object.defineProperty(navigator, 'webdriver', {
                 get: () => undefined,
             });
 
             // Override plugins (make it look like a real browser)
-            // noqa: E501, Q000
             Object.defineProperty(navigator, 'plugins', {
                 get: () => [
-                    { name: 'Chrome PDF Plugin', description: 'Portable Document Format', filename: 'internal-pdf-viewer' },
+                    {
+                        name: 'Chrome PDF Plugin',
+                        description: 'Portable Document Format',
+                        filename: 'internal-pdf-viewer'
+                    },
                     { name: 'Chrome PDF Viewer', description: '', filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai' },
                     { name: 'Native Client', description: '', filename: 'internal-nacl-plugin' }
                 ],
