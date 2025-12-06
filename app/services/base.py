@@ -31,6 +31,7 @@ class SmartSessionManager:
     """
 
     def __init__(self):
+        """Initialize the SmartSessionManager with user agents, proxies, and session settings."""
         self.sessions: Dict[str, Dict] = {}
         self.user_agents = self._load_user_agents()
         self.proxies = self._load_proxies()
@@ -254,6 +255,7 @@ class AntiScrapingMonitor:
     """
 
     def __init__(self):
+        """Initialize the AntiScrapingMonitor with default metrics."""
         self.requests_total = 0
         self.requests_successful = 0
         self.requests_failed = 0
@@ -364,6 +366,7 @@ class PlaywrightBrowserScraper:
     """
 
     def __init__(self):
+        """Initialize the PlaywrightBrowserScraper with user agents and viewport sizes."""
         self.user_agents = _session_manager.user_agents
         self.viewport_sizes = [
             {"width": 1920, "height": 1080},
@@ -562,6 +565,7 @@ class RetryManager:
     """
 
     def __init__(self):
+        """Initialize the RetryManager with retry configuration from settings."""
         self.max_attempts = 3
         self.base_delay = settings.REQUEST_DELAY_MIN
         self.max_delay = settings.REQUEST_DELAY_MAX
