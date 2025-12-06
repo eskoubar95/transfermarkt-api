@@ -394,7 +394,6 @@ class PlaywrightBrowserScraper:
 
         Returns:
             HTML content as string
-<<<<<<< HEAD
 
         Raises:
             ImportError: If playwright is not installed.
@@ -402,9 +401,6 @@ class PlaywrightBrowserScraper:
         if not PLAYWRIGHT_AVAILABLE:
             raise ImportError("playwright is not installed. Install it with: pip install playwright")
 
-=======
-        """
->>>>>>> main
         async with async_playwright() as p:
             # Launch browser with anti-detection measures
             browser = await p.chromium.launch(
@@ -566,13 +562,8 @@ class PlaywrightBrowserScraper:
             return response.text
 
 
-<<<<<<< HEAD
 # Global browser scraper instance (only if playwright is available)
 _browser_scraper: Optional[PlaywrightBrowserScraper] = PlaywrightBrowserScraper() if PLAYWRIGHT_AVAILABLE else None
-=======
-# Global browser scraper instance
-_browser_scraper = PlaywrightBrowserScraper()
->>>>>>> main
 
 
 class RetryManager:
@@ -776,12 +767,9 @@ class TransfermarktBase:
             print(f"HTTP request failed, trying browser fallback for {url}")
 
             # Create a mock Response object with browser content
-<<<<<<< HEAD
             if not PLAYWRIGHT_AVAILABLE or _browser_scraper is None:
                 raise http_error
 
-=======
->>>>>>> main
             try:
                 import asyncio
 
@@ -1177,7 +1165,6 @@ class TransfermarktBase:
             Dict: Complete monitoring data including success rates, blocks, performance metrics.
         """
         stats = _monitor.get_stats()
-<<<<<<< HEAD
         stats["browser_scraping_available"] = PLAYWRIGHT_AVAILABLE and _browser_scraper is not None
         if _browser_scraper is not None:
             stats["browser_user_agents"] = len(_browser_scraper.user_agents)
@@ -1185,9 +1172,4 @@ class TransfermarktBase:
         else:
             stats["browser_user_agents"] = 0
             stats["browser_viewports"] = 0
-=======
-        stats["browser_scraping_available"] = True
-        stats["browser_user_agents"] = len(_browser_scraper.user_agents)
-        stats["browser_viewports"] = len(_browser_scraper.viewport_sizes)
->>>>>>> main
         return stats
