@@ -11,8 +11,15 @@ import requests
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
 from lxml import etree
-from playwright.async_api import async_playwright
 from requests import Response, Session, TooManyRedirects
+
+try:
+    from playwright.async_api import async_playwright
+
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+    async_playwright = None  # type: ignore
 
 from app.settings import settings
 from app.utils.utils import trim
@@ -387,7 +394,13 @@ class PlaywrightBrowserScraper:
 
         Returns:
             HTML content as string
+
+        Raises:
+            ImportError: If playwright is not installed.
         """
+        if not PLAYWRIGHT_AVAILABLE:
+            raise ImportError("playwright is not installed. Install it with: pip install playwright")
+
         async with async_playwright() as p:
             # Launch browser with anti-detection measures
             browser = await p.chromium.launch(
@@ -549,8 +562,8 @@ class PlaywrightBrowserScraper:
             return response.text
 
 
-# Global browser scraper instance
-_browser_scraper = PlaywrightBrowserScraper()
+# Global browser scraper instance (only if playwright is available)
+_browser_scraper: Optional[PlaywrightBrowserScraper] = PlaywrightBrowserScraper() if PLAYWRIGHT_AVAILABLE else None
 
 
 class RetryManager:
@@ -754,6 +767,9 @@ class TransfermarktBase:
             print(f"HTTP request failed, trying browser fallback for {url}")
 
             # Create a mock Response object with browser content
+            if not PLAYWRIGHT_AVAILABLE or _browser_scraper is None:
+                raise http_error
+
             try:
                 import asyncio
 
@@ -1149,7 +1165,11 @@ class TransfermarktBase:
             Dict: Complete monitoring data including success rates, blocks, performance metrics.
         """
         stats = _monitor.get_stats()
-        stats["browser_scraping_available"] = True
-        stats["browser_user_agents"] = len(_browser_scraper.user_agents)
-        stats["browser_viewports"] = len(_browser_scraper.viewport_sizes)
+        stats["browser_scraping_available"] = PLAYWRIGHT_AVAILABLE and _browser_scraper is not None
+        if _browser_scraper is not None:
+            stats["browser_user_agents"] = len(_browser_scraper.user_agents)
+            stats["browser_viewports"] = len(_browser_scraper.viewport_sizes)
+        else:
+            stats["browser_user_agents"] = 0
+            stats["browser_viewports"] = 0
         return stats
