@@ -3,7 +3,7 @@ from typing import Optional
 
 from app.services.base import TransfermarktBase
 from app.utils.regex import REGEX_DOB
-from app.utils.utils import extract_from_url, safe_regex
+from app.utils.utils import extract_from_url, safe_regex, trim
 from app.utils.xpath import Clubs
 
 
@@ -127,7 +127,18 @@ class TransfermarktClubPlayers(TransfermarktBase):
 
         if len(players_names) != base_length:
             players_names = (players_names + [""] * base_length)[:base_length]
-        players_nationalities = [nationality.xpath(Clubs.Players.NATIONALITIES) for nationality in page_nationalities]
+        players_nationalities = (
+            [
+                (
+                    [trim(n) for n in nationality.xpath(Clubs.Players.NATIONALITIES) if trim(n)]
+                    if nationality is not None
+                    else []
+                )
+                for nationality in page_nationalities
+            ]
+            if page_nationalities
+            else []
+        )
         if len(players_nationalities) != base_length:
             players_nationalities = (players_nationalities + [[]] * base_length)[:base_length]
 
@@ -150,17 +161,29 @@ class TransfermarktClubPlayers(TransfermarktBase):
         if len(players_foots) != base_length:
             players_foots = (players_foots + [None] * base_length)[:base_length]
 
-        players_joined_on = ["; ".join(e.xpath(Clubs.Players.JOINED_ON)) for e in page_players_joined_on]
+        players_joined_on = (
+            ["; ".join(e.xpath(Clubs.Players.JOINED_ON)) if e is not None else "" for e in page_players_joined_on]
+            if page_players_joined_on
+            else []
+        )
         if len(players_joined_on) != base_length:
-            players_joined_on = (players_joined_on + [None] * base_length)[:base_length]
+            players_joined_on = (players_joined_on + [""] * base_length)[:base_length]
 
-        players_joined = ["; ".join(e.xpath(Clubs.Players.JOINED)) for e in page_players_infos]
+        players_joined = (
+            ["; ".join(e.xpath(Clubs.Players.JOINED)) if e is not None else "" for e in page_players_infos]
+            if page_players_infos
+            else []
+        )
         if len(players_joined) != base_length:
-            players_joined = (players_joined + [None] * base_length)[:base_length]
+            players_joined = (players_joined + [""] * base_length)[:base_length]
 
-        players_signed_from = ["; ".join(e.xpath(Clubs.Players.SIGNED_FROM)) for e in page_players_signed_from]
+        players_signed_from = (
+            ["; ".join(e.xpath(Clubs.Players.SIGNED_FROM)) if e is not None else "" for e in page_players_signed_from]
+            if page_players_signed_from
+            else []
+        )
         if len(players_signed_from) != base_length:
-            players_signed_from = (players_signed_from + [None] * base_length)[:base_length]
+            players_signed_from = (players_signed_from + [""] * base_length)[:base_length]
 
         players_contracts = (
             [None] * base_length if self.past else self.get_list_by_xpath(Clubs.Players.Present.CONTRACTS)
